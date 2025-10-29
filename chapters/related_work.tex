@@ -1,0 +1,21 @@
+% !TeX root = ../main.tex
+% Add the above to each chapter to make compiling the PDF easier in some editors.
+
+\chapter{Related Work}\label{chapter:related_work}
+
+Techniques for Register allocation have focused either primarily on code quality or on compilation speed.
+Graph coloring based register allocation~\parencite{Chaitin1981} has been shown to produce good quality code but can be slow for large functions due to the complexity of graph coloring algorithms~\parencite{Appel1998}. 
+Linear scan register allocation~\parencite{Poletto1999} is a faster alternative that trades off some code quality for speed, making it suitable for just-in-time compilation scenarios.
+
+Most(TODO all?) literature considers register allocation after having performed Instruction Selection.   TODO woanders
+
+\section{Graph Coloring Register Allocation}
+Graph coloring register allocation~\parencite{Chaitin1981} models the register allocation problem as a graph coloring problem, where each node represents a variable and an edge between two nodes indicates that the variables are live at the same time and thus cannot share the same register.
+
+While graph coloring in general is a NP-complete problem~\parencite{Chaitin1981}, programs in SSA form have interference graphs that are chordal~\parencite{Hack06}, allowing for polynomial time coloring algorithms~\parencite{Hack06}.
+
+
+Standard graph coloring approaches are dominated by the cost of building and rebuilding the interference graph after spilling~\parencite{Cooper06}.
+By reusing parts of the interference graph after spilling, the allocation time can be reduced by around 50\%~\parencite{Cooper06}.
+
+% todo impact of ssa form?
