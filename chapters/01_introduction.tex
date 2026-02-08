@@ -1,95 +1,123 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
-
+% Read the CSV files
+\pgfplotstableread[col sep=comma]{plots/output/pareto/all.csv}\alldata
+\pgfplotstableread[col sep=comma]{plots/output/pareto/dominators.csv}\dominators
 \chapter{Introduction}\label{chapter:introduction}
 
-\section{Section}
-Citation test~\parencite{latex}.
+\begin{itemize}
+  \item Compile speed is important for some applications like Database systems
+  \item For short running programs, compile time is the dominant factor
+  \item Gains from optimizations are not sufficient to amortize the additional compile time
+  \item For long running programs, runtime is the dominant factor and more expensive optimizations are beneficial
+  \item For most scenarios where a short compile time is wanted, the most interesting metric is the combined compile and runtime of a program \todo{citation}
+  \item TPDE~\cite{tpde} is currently the fastest Compiler for LLVM-IR in unoptimized scenarios (-O0) targeting x84-64 and AArch64
+  \item However, transitioning from TPDE to the next optimization level, LLVM~\cite{llvm} O1 pipeline is a large step in compile time
+  \item compile time increases by approximately \todo{10} times while delivering only around \todo{5} times runtime improvement (as illustrated in Fig.~\ref{fig:pareto_intro})
+  \item Therefore there is a significant subset of programs in JIT scenarios that are likely to benefit from some level of optimization, but currently lack a fast enough solution
+\end{itemize}
 
-Acronyms must be added in \texttt{main.tex} and are referenced using macros. The first occurrence is automatically replaced with the long version of the acronym, while all subsequent usages use the abbreviation.
+%\item In this work we bridge this gap by introducing a better but still efficient register allocator to TPDE, which improves runtime performance to \todo{80\%} of LLVM-O1 while compiling on average \todo{50\%} faster.
 
-E.g. \texttt{\textbackslash ac\{TUM\}, \textbackslash ac\{TUM\}} $\Rightarrow$ \ac{TUM}, \ac{TUM}
+% relevant for pareto plot: https://dis.ijs.si/tea/Publications/Filipic18Taxonomy.pdf
 
-For more details, see the documentation of the \texttt{acronym} package\footnote{\url{https://ctan.org/pkg/acronym}}.
-\subsection{Subsection}
 
-See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
 
-\begin{table}[htpb]
-  \caption[Example table]{An example for a simple table.}\label{tab:sample}
-  \centering
-  \begin{tabular}{l l l l}
-    \toprule
-      A & B & C & D \\
-    \midrule
-      1 & 2 & 1 & 2 \\
-      2 & 3 & 2 & 3 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\begin{figure}[]
+    \centering
+\label{fig:pareto_intro}
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Compile Time (lower is better)},
+    ylabel={Runtime (lower is better)},
+    grid=major,
+    legend pos=north east,
+    width=12cm,
+    height=6cm,
+    enlargelimits=0.05,
+]
 
-\begin{figure}[htpb]
-  \centering
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}[node distance=3cm]
-    \node (R0) {$R_1$};
-    \node (R1) [right of=R0] {$R_2$};
-    \node (R2) [below of=R1] {$R_4$};
-    \node (R3) [below of=R0] {$R_3$};
-    \node (R4) [right of=R1] {$R_5$};
 
-    \path[every node]
-      (R0) edge (R1)
-      (R0) edge (R3)
-      (R3) edge (R2)
-      (R2) edge (R1)
-      (R1) edge (R4);
-  \end{tikzpicture}
-  \caption[Example drawing]{An example for a simple drawing.}\label{fig:sample-drawing}
+% Plot all points with colors by category (low saturation)
+\addplot[
+    only marks,
+    mark=*,
+    mark size=2pt,
+    scatter,
+    scatter src=explicit symbolic,
+    scatter/classes={
+        TPDE={mark=*,blue!30},
+        LLVM-O0={mark=*,red!30},
+        LLVM-O1={mark=*,green!30},
+        LLVM-O2={mark=*,orange!30},
+        LLVM-O3={mark=*,purple!30},
+        GCC-O0={mark=*,cyan!30},
+        GCC-O1={mark=*,magenta!30},
+        GCC-O2={mark=*,yellow!50!black!30},
+        GCC-O3={mark=*,brown!30}
+    },
+] table[x=compile_time, y=runtime, meta=category] {\alldata};
+\addlegendentry{All points}
+
+% Plot Pareto front points with colors by category (full saturation)
+\addplot[
+    only marks,
+    mark=*,
+    mark size=3pt,
+    scatter,
+    scatter src=explicit symbolic,
+    scatter/classes={
+        TPDE={mark=*,blue},
+        LLVM-O0={mark=*,red},
+        LLVM-O1={mark=*,green!70!black},
+        LLVM-O2={mark=*,orange},
+        LLVM-O3={mark=*,purple},
+        GCC-O0={mark=*,cyan!70!black},
+        GCC-O1={mark=*,magenta},
+        GCC-O2={mark=*,yellow!50!black},
+        GCC-O3={mark=*,brown}
+    },
+] table[x=compile_time, y=runtime, meta=category] {\dominators};
+
+% Draw lines connecting Pareto front points
+\addplot[
+    no markers,
+    color=black,
+    thick,
+] table[x=compile_time, y=runtime] {\dominators};
+
+\addlegendentry{Pareto front}
+\end{axis}
+\end{tikzpicture}
 \end{figure}
 
-\begin{figure}[htpb]
-  \centering
+\section*{Approach}
 
-  \pgfplotstableset{col sep=&, row sep=\\}
-  % This should probably go into a file in data/
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1000 \\
-    2 & 1500 \\
-    3 & 1600 \\
-  }\exampleA
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1200 \\
-    2 & 800 \\
-    3 & 1400 \\
-  }\exampleB
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}
-    \begin{axis}[
-        ymin=0,
-        legend style={legend pos=south east},
-        grid,
-        thick,
-        ylabel=Y,
-        xlabel=X
-      ]
-      \addplot table[x=a, y=b]{\exampleA};
-      \addlegendentry{Example A}
-      \addplot table[x=a, y=b]{\exampleB};
-      \addlegendentry{Example B}
-    \end{axis}
-  \end{tikzpicture}
-  \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
-\end{figure}
+\begin{itemize}
+  \item fast accurate liveness analysis \todo{cite paper}
+  \item utilize SSA form to seperate spilling and register allocation phases
+  \item Implememnt a fast spilling phase without requiring changes to the icnoming IR.
+  \item spilling analysis without requiring prior isntruction selection phase.
+  \item build a repairing register allocator to adress architecture constrints.
+\end{itemize}
 
-\begin{figure}[htpb]
-  \centering
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=SQL]
-    SELECT * FROM tbl WHERE tbl.str = "str"
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
-\end{figure}
+\section*{Contribution}
+
+\begin{itemize}
+  \item Building a simplified spilling mechanism whichi guarantees correctness (even for incorrect liveness data)
+  \item spilling wihtout modifications to IR 
+  \item Improving Pareto optimal compilation trade-offs. 
+\end{itemize}
+
+\section*{Outline}
+
+
+\begin{itemize}
+  \item Background
+  \item Liveness
+  \item Spilling
+  \item Register allocation
+  \item Related work
+  \item Evaluation
+  \item Conclusion
+\end{itemize}

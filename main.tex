@@ -1,10 +1,17 @@
 % !BIB TS-program = biber
 
 \RequirePackage[l2tabu,orthodox]{nag}
-
+\newcommand\todo[1]{\textcolor{red}{#1}}
 % TODO: decide if one-sided/two-sided
 %\documentclass[headsepline,footsepline,footinclude=false,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc,BCOR=12mm,DIV=12]{scrbook} % two-sided
 \documentclass[headsepline,footsepline,footinclude=false,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrbook} % one-sided
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.18}
+
+
 
 % TODO: change thesis information
 \newcommand*{\getUniversity}{Technische Universität München}
@@ -44,6 +51,7 @@
 \mainmatter{}
 
 \input{chapters/01_introduction}
+\input{chapters/02_Background}
 % TODO: add more chapters here
 \input{chapters/related_work}
 \appendix{}
