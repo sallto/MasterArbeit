@@ -1,0 +1,32 @@
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.dvi
+*.log
+*.lof
+*.lot
+*.out
+*.toc
+*.bcf
+*.xdv
+*.pdf
+*.xmpi
+*.synctex.gz
+*.synctex(busy)
+
+# LaTeX directories
+/build/
+/dist/
+
+# Editor backups
+*~
+*.swp
+*.swo
+*.bak
