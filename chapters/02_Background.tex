@@ -1,2 +1,78 @@
 % !TeX root = ../main.tex
 \chapter{Background}
+
+\section*{Single Static Assignment}
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.30\textwidth}
+        \centering
+        \textbf{C Code}
+        \begin{lstlisting}[language=C]
+int x = 5;
+int y = x + 1;
+x = x * y;
+        \end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.30\textwidth}
+        \centering
+        \textbf{SSA Form}
+        \begin{lstlisting}
+%x_1 = i32 5
+%y_1 = add i32 %x_1, 1
+%x_2 = mul i32 %x_1, %y_1
+        \end{lstlisting}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.30\textwidth}
+        \centering
+        \textbf{Interference Graph}
+        \begin{tikzpicture}[scale=0.8]
+            \node[circle, fill=red!70] (x1) at (0, 1) {$x_1$};
+            \node[circle, fill=cyan!70] (y1) at (1, 0) {$y_1$};
+            \node[circle, fill=red!70] (x2) at (0, -1) {$x_2$};
+            \draw (x1) -- (y1);
+            \draw (y1) -- (x2);
+        \end{tikzpicture}
+    \end{minipage}
+    \caption{Example: C code and its LLVM-IR SSA representation}
+    \label{fig:ssa_example}
+\end{figure}
+\begin{itemize}
+    \item Most modern compilers use an intermediate representation (IR)
+    \item SSA is a popular form.
+    \item In SSa each variable has 1 definition
+    \item Simplifies transformations such as Dead Code Elimination
+    \item Also has favourable properties for Register allocation
+    \item LLVM-IR is in SSA.
+    \item Phi nodes
+    \item 
+\end{itemize}
+
+\section*{Liveness}
+\section*{Register Allocation}
+
+\begin{itemize}
+    \item Register allocation is assigning physical registers to values from the IR.
+    \item Traditionally modeled using Graph coloring as a mathematical model.
+    \item Graph coloring is NP-hard in general \todo{cite proof Regalloc np hard}.
+    \item In Graph coloring, directly connected nodes must have different colors.
+    \item During register allocation, values that are live at the same time must have different registers.
+    \item We can build an equivalent interference graph (IG) where nodes are values and edges exist between overlapping live ranges.
+    \item If the graph can be colored with k colors, the equivalent program can be allocated with k registers without spilling (ignoring register constraints).
+    \item Programs typically have more values than registers. 
+    \item Graph coloring register allocators typically try coloring the IG, then spill some live ranges (which reduces the number of edges)
+    \item This process repeats until the graph can be colored with k colors.
+    \item The example from Fig.~\ref{fig:ssa_example} can be colored with 2 colors.
+    \item The resulting program needs 2 registers.
+    \item FOr real architectures, we also need to consider register constraints. 
+    \item Some instructions require specific registers. For example the unsigned mul instruction on x86
+    \item This can be modeled by adding additional edges and nodes to the IG.
+    \item Due to the iterative nature and the need for an expensive IG data structure, traditional GC register allocators are not suited fo rJIT applications.
+    \item 
+    \item As independetnly discovered in \todo{200x} SSA form, the resulting IG are chordal.
+    \item This makes the graph coloring problem solvable in polynomial time. 
+    \item It also allows for decoupling of spilling and coloring. \todo{more detail}
+\end{itemize}
+
+% linear scan dann in Related work und puzzle solving zeugs
