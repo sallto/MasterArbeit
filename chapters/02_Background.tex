@@ -1,7 +1,7 @@
 % !TeX root = ../main.tex
 \chapter{Background}
 
-\section*{Single Static Assignment}
+\section{Single Static Assignment}
 \begin{figure}[h]
     \centering
     \begin{minipage}{0.30\textwidth}
@@ -49,8 +49,8 @@ x = x * y;
     \item 
 \end{itemize}
 
-\section*{Liveness}
-\section*{Register Allocation}
+\section{Liveness}
+\section{Register Allocation}
 
 \begin{itemize}
     \item Register allocation is assigning physical registers to values from the IR.
@@ -64,15 +64,35 @@ x = x * y;
     \item Graph coloring register allocators typically try coloring the IG, then spill some live ranges (which reduces the number of edges)
     \item This process repeats until the graph can be colored with k colors.
     \item The example from Fig.~\ref{fig:ssa_example} can be colored with 2 colors.
-    \item The resulting program needs 2 registers.
+    \item The resulting program needs 2 registers. \todo{chaitlin briggs allocator loop figure}
     \item FOr real architectures, we also need to consider register constraints. 
     \item Some instructions require specific registers. For example the unsigned mul instruction on x86
     \item This can be modeled by adding additional edges and nodes to the IG.
     \item Due to the iterative nature and the need for an expensive IG data structure, traditional GC register allocators are not suited fo rJIT applications.
-    \item 
+\end{itemize}
+
+\section{Register Allocation on SSA}
+\begin{itemize}
     \item As independetnly discovered in \todo{200x} SSA form, the resulting IG are chordal.
     \item This makes the graph coloring problem solvable in polynomial time. 
-    \item It also allows for decoupling of spilling and coloring. \todo{more detail}
+    \item Notably it also allows for finding the maximal clique in polynomial time.
+    \item A clique is a subset of nodes where every node is directly connected.
+    \item Notably, any chordal graph can be colored wtih excately the number of colors as the size of its maximal clique, which can be found in polynomial time.
+    \item This allows for a new approach to register allocation. 
+    \item First reduce the number of all cliques to $k$ (the number of available registers.)
+    \item Second color the graph, which is now nearly trivial, \todo{more detail how this works}
+    \item Spilling and allocation are now 2 seperate phases that each run once. It is no required to be iterative as in traditional graph coloring. \todo{more detail}
+    \item Register constraints make this more complicated, as the graph needs to remain chordal while representing the constraints. 
+    \item Depending on the specific constraints, this requires a lot of additional work \cite{hackthesis}.
+    \item 
 \end{itemize}
 
 % linear scan dann in Related work und puzzle solving zeugs
+
+\section{TPDE}
+
+\begin{itemize}
+    \item Fast compiler framework.
+    \item Can't modify IR.
+    \item Encodegen
+\end{itemize}
