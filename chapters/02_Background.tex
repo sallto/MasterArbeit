@@ -1,54 +1,6 @@
 % !TeX root = ../main.tex
 \chapter{Background}
 
-\section{Single Static Assignment Form}
-\begin{figure}[h]
-    \centering
-    \begin{minipage}{0.30\textwidth}
-        \centering
-        \textbf{C Code}
-        \begin{lstlisting}[language=C]
-int x = 5;
-int y = x + 1;
-x = x * y;
-        \end{lstlisting}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.30\textwidth}
-        \centering
-        \textbf{SSA Form}
-        \begin{lstlisting}
-%x_1 = i32 5
-%y_1 = add i32 %x_1, 1
-%x_2 = mul i32 %x_1, %y_1
-        \end{lstlisting}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.30\textwidth}
-        \centering
-        \textbf{Interference Graph}
-        \begin{tikzpicture}[scale=0.8]
-            \node[circle, fill=red!70] (x1) at (0, 1) {$x_1$};
-            \node[circle, fill=cyan!70] (y1) at (1, 0) {$y_1$};
-            \node[circle, fill=red!70] (x2) at (0, -1) {$x_2$};
-            \draw (x1) -- (y1);
-            \draw (y1) -- (x2);
-        \end{tikzpicture}
-    \end{minipage}
-    \caption{Example: C code and its LLVM-IR SSA representation}
-    \label{fig:ssa_example}
-\end{figure}
-\begin{itemize}
-    \item Most modern compilers use an intermediate representation (IR)
-    \item SSA is a popular form.
-    \item In SSa each variable has 1 definition
-    \item Simplifies transformations such as Dead Code Elimination
-    \item Also has favourable properties for Register allocation
-    \item LLVM-IR is in SSA.
-    \item Phi nodes
-    \item 
-\end{itemize}
-
 \section{Liveness}
 \section{Register Allocation}
 
