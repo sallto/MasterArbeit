@@ -1,52 +1,80 @@
 % !TeX root = ../main.tex
 \chapter{Background}
+\label{ch:background}
+In this chapter, we will introduce the basic concepts of register allocation and the particular importance of the SSA form. We then brievely describe the TPDE backend framework and the resulting challenges building register allocation on top of it.
 
-\section{Liveness}
-\section{Register Allocation}
+\section{Register Allocation on non-SSA programs}
+\label{sec:regalloc-non-ssa}
 
-\begin{itemize}
-    \item Register allocation is assigning physical registers to values from the IR.
-    \item Traditionally modeled using Graph coloring as a mathematical model.
-    \item Graph coloring is NP-hard in general \todo{cite proof Regalloc np hard}.
-    \item In Graph coloring, directly connected nodes must have different colors.
-    \item During register allocation, values that are live at the same time must have different registers.
-    \item We can build an equivalent interference graph (IG) where nodes are values and edges exist between overlapping live ranges.
-    \item If the graph can be colored with k colors, the equivalent program can be allocated with k registers without spilling (ignoring register constraints).
-    \item Programs typically have more values than registers. 
-    \item Graph coloring register allocators typically try coloring the IG, then spill some live ranges (which reduces the number of edges)
-    \item This process repeats until the graph can be colored with k colors.
-    \item The example from Fig.~\ref{fig:ssa_example} can be colored with 2 colors.
-    \item The resulting program needs 2 registers. \todo{chaitlin briggs allocator loop figure}
-    \item FOr real architectures, we also need to consider register constraints. 
-    \item Some instructions require specific registers. For example the unsigned mul instruction on x86
-    \item This can be modeled by adding additional edges and nodes to the IG.
-    \item Due to the iterative nature and the need for an expensive IG data structure, traditional GC register allocators are not suited fo rJIT applications.
-\end{itemize}
+Register Allocation is the process of assigning values from a program to a limited number of $k$ physical registers. This process is commonly modeled as finding the Graph Coloring of an Interference graph corresponding to the program.
 
-\section{Register Allocation on SSA}
-\begin{itemize}
-    \item As independetnly discovered in \todo{200x} SSA form, the resulting IG are chordal.
-    \item This makes the graph coloring problem solvable in polynomial time. 
-    \item Notably it also allows for finding the maximal clique in polynomial time.
-    \item A clique is a subset of nodes where every node is directly connected.
-    \item Notably, any chordal graph can be colored wtih excately the number of colors as the size of its maximal clique, which can be found in polynomial time.
-    \item This allows for a new approach to register allocation. 
-    \item First reduce the number of all cliques to $k$ (the number of available registers.)
-    \item Second color the graph, which is now nearly trivial, \todo{more detail how this works}
-    \item Spilling and allocation are now 2 seperate phases that each run once. It is no required to be iterative as in traditional graph coloring. \todo{more detail}
-    \item Register constraints make this more complicated, as the graph needs to remain chordal while representing the constraints. 
-    \item Depending on the specific constraints, this requires a lot of additional work \cite{hackthesis}.
-    \item 
-\end{itemize}
+The nodes in an intereference graph correspond to the values in a program, and edges between them indicate that the connected values interfere with eachother and therefore cannot be in the same register. This nicely corresponds to Graph coloring where connected nodes may not be assigned the same color.
 
-% linear scan dann in Related work und puzzle solving zeugs
+Therefore a valid coloring with at most $k$ colors would be a valid register allocation for the corresponding program on an perfectly regular archtiecture with at least $k$ registers.
 
-\section{TPDE}
+In practice, using such an approach directely is unfeasible as GC is NP-complete in the number of values~\cite{graph-coloring-np-complete}, and any arbitrary IG can be used to construct a program having the same IG~\cite{chaitin1981}. 
+In addition, deciding how many registers a program requires and deciding wether $k$ registers are sufficient are also NP-complete~\cite{hack-thesis}.
 
+Practical RA need to rely on heuristics at all steps, to find a allocation in a reasonable time. We will illustrate this with the seminal work by Chaitin~\cite{chaitin1981} on the subject. Note that we will assume a theoretical regular architecture for now. We will address archtectural constraints and their associated complications later.
 
+\subsection{Chaitlin Style Graph Coloring Register Allocation}
 
-\begin{itemize}
-    \item Fast compiler framework.
-    \item Can't modify IR.
-    \item Encodegen
-\end{itemize}
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    >=Latex,
+    box/.style={
+        draw,
+        minimum width=2.5cm,
+        minimum height=1.1cm,
+        align=center
+    }
+]
+
+% Nodes
+\node[box] (build) {Build};
+\node[box, right=0.5cm of build] (coalesce) {Coalesce};
+\node[box, right=0.5cm of coalesce] (color) {Color};
+\node[box, above=1.2cm of color] (spill) {Spill};
+
+% Main horizontal flow
+\draw[->] ($(build.west)+(-1.0,0)$) -- (build.west);
+\draw[->] (build.east) -- (coalesce.west);
+\draw[->] (coalesce.east) -- (color.west);
+\draw[->] (color.east) -- ++(1.0,0);
+
+% Upward failure edge
+\draw[->] (color.north) -- node[right=4pt] {coloring failed} (spill.south);
+
+% Back edge from Spill to Build
+\draw[->] (spill.west) -| (build.north);
+
+\end{tikzpicture}
+\caption{Simplified overview of the steps in a graph coloring allocator}
+\label{fig:graph-coloring-steps}
+\end{figure}
+
+First the Interference Graph itself has to be constructed. This is done by scanning the program and adding edges between values that are live at the same time. 
+
+Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have more edges than previously. 
+
+Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spill code. This process is repeated until the graph is empty.
+
+Now all nodes are on the coloring stack, where we reinsert them into the graph and assign them a color. This will always be possible since they must have fewer than $k$ neighbors. This produces a valid coloring of the final program.
+
+While this approach produces good results in practice, building the Inference Graph is an expensive operation and the iterative nature of the algorithm make it unattractive for use in a JIT compiler~\cite{Cooper06}. 
+
+While there have been countless improvements to the original algorithm, the basic iterative structure remains the same, prompting different approaches to the problem.
+
+\subsection{Other Approaches}
+
+One alternate approach is to formulate Register Allocation as an Integer Linear Programming problem. While this can produce optimal results it is also NP-complete and the worst case runtimes of several minutes makes them unattractive for JIT compilers\cite{ilp-regalloc}.
+
+The other common approach is to use a linear scan allocator~\cite{linear-scan-og}. This approach avoids the expensive IG datastructure in favor of using a total ordering of all program instructions. This ordering is used to determine the single live range of each value, for example starting at instruction $i$ and ending at instruction $j$ ($[i,j]$). The live ranges are then assigned to registers in the order of their interval start. 
+
+Once the algorithm runs out of registers, it spills a value, splitting its live range into two parts. The spilled value is typically chosen based upon the furthest live range end.
+
+This approach is simple and non-iterative and therefore attractive for use in a JIT compiler. However, due to the simplified liveness information, the resulting allocation quality is comparatively worse. Especially around control flow such as loops and branches with differing register pressure. Although there have been multiple improvements from the original algorithm, the resulting allocation quality is considered worse than that of graph coloring~\cite{wimmer-06-linear-scan}.
+
+\section{Register Allocation on SSA programs}
+

@@ -10,33 +10,7 @@
 
 % linear scan dann in Related work und puzzle solving zeugs
 \section{Graphcoloring Register Allocation}
-\begin{figure}
-\centering
-\begin{tikzpicture}[
-    >=Latex,
-    node distance=2.5cm,
-    every node/.style={font=\itshape},
-    box/.style={draw, minimum width=2.2cm, minimum height=1.1cm, align=center}
-]
 
-% Nodes
-\node[box] (build) {build IG};
-\node[box, right=of build] (colorable) {color};
-\node[box, above=1.8cm of colorable] (spill) {spill};
-
-% Arrows
-\draw[->] (build) -- (colorable);
-
-% No branch goes up to spill
-\draw[->] (colorable) -- node[right, font=\normalfont] {fail} (spill);
-\draw[->] (colorable) -- node[below, font=\normalfont] {success} ++(2.5cm,0);
-
-% Spill returns to build IG
-\draw[->] (spill.west) -| (build.north);
-
-\end{tikzpicture}
-\caption{Simplified overview of the steps in a graph coloring allocator}
-\end{figure}
 
 As previously described, graph coloring of interference graphs is equivalent to register allocation~\parencite{Chaitin1981}. 
 In general this is an NP hard problem~\parencite{Chaitin1981}. For graphs that are not colorable with $k$ colors, the graph coloring algorithms additionally nedd to iterate between coloring, spilling and coalescing. Where each spill step requires an expensive recomputation of the interference graph\cite{Cooper06}. This makes traditional graph coloring register allocation too slow for just in time compilation~\parencite{Cooper06}. There are multiple improvements proposed to the original algorithm aiming to improve the code quality\todo{study look cgo 2006}.
@@ -62,4 +36,4 @@ Our algorithm uses a preprocessing step using SSA properties to find better spil
 \todo{citations}
 For JIT Compilers in particular, trace allocation can be used, which assigns registers on chosen segments incoming control flow, so called traces. This allows for fast algorithm and can use different allocation strategies based on the trace properties. However choosing good traces is non-trivial without runtime profiling information, and the resulting code quality is highly dependent on the trace selection.
 
-As TPDE~\cite{tpde} does not use have access to runtime profiling information, this approach is not suitable for our use case. Our approach allocates across control flow, without runtime information under the assumption that loops will be executed a multiple times.
+As TPDE~\cite{tpde} does not use have access to runtime profiling information, this approach is not suitable for our use case. Our approach allocates across control flow, without runtime information under the assumption that loops will be executed multiple times.
