@@ -196,3 +196,47 @@ As our work is focused on register allocation speed rather than perfect allocati
 
 
 \section{TPDE}
+\label{sec:tpde}
+
+TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most IRs without a translation step, although this work will focus on LLVM-IR in particular. 
+
+In TPDE functions consist of a sequence of basic blocks, which in turn consist of a sequence of instructions. Instructions are represented as a list of operands and a list of results both of which are made of values. 
+Values can have multiple parts, where each ValuePart has a RegisterBank and size attached. ValueParts can be stored in their designated stack slot or in a register at any program point. 
+
+Lifetimes are managed at a Value level and is calculated using approximated liveness with a start and end BasicBlock as well as a number of references, after which the Value is dead and its stack slot can be reused. 
+
+TPDE combines instruction selection, register allocation and instruction encoding into a single codegeneration step. This is done by user provided instruction compilers for each IR instruction that encode the semantics of the instruction and compile them directly into machine instructions.
+\subsection{Instruction Compilers}
+
+Instruction compilers are responsible for getting handles to the actual Values, which prevent them from being spilled as long as they are alive. 
+They then load the operands into registers or use them as memory operands and encode the instruction. 
+In addition to the ValuePartRefs they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see Lst.~\ref{lst:example-div}).
+
+
+
+\begin{lstlisting}[float,frame=none,caption={Example instruction compiler for an 64-bit unsigned division instruction for x86-64. The framework will move values into registers and create a copy of the first operand if required. We use a ScratchReg to clear the \texttt{RDX} register.}, label={lst:example-div}, language=C++,captionpos=b]
+void emit_udiv64(IRValueRef inst) {
+    ValuePartRef lhs_ref = val_ref(inst->getOperand(0), 0); // Handle for operand 0, part 0
+    ValuePartRef rhs_ref = val_ref(inst->getOperand(1), 0); // Handle for operand 1, part 0
+    ScratchReg rdx_scratch{}; // Scratch for RDX, unspillable
+    lhs_ref.into_specific(Reg::AX); // Move or load lhs into RAX
+    ValuePartRef res_ref = result_ref_will_overwrite(inst, 0, std::move(lhs_ref));
+
+    AsmReg rdx_reg = rdx_scratch.allocate_specific(Reg::DX); // reserve RDX for the Scratch
+    ASM(XORrr, rdx_reg, rdx_reg); // Ensure RDX is zero
+    AsmReg rhs_reg = val_as_reg(rhs_ref); // Force into arbitrary GP register
+    ASM(DIV64rr, rhs_reg); // Encode instruction, clobbers first operand
+    set_value(res_ref, res_ref.cur_reg()); // Notify framework that register was modified
+} // Release handles and scratch
+\end{lstlisting}
+
+Instruction compilers can allocate more or less registers than is suggested by the number of their operands and results. As TPDE is unaware of the true semantics of the instruction, this makes register allocation, which has to operate before codegeneration, more difficult.
+
+\subsection{Current Register Allocation in TPDE}
+
+Whenever a register is requested by an instruction compiler, the framework will try to use the existing register if a ValuePart currently is in one, otherwise it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining livetime of the spilled value. For requests of a specific register, the value cantained in that register will be spilled.
+
+In addition to this basic mechanism, ValueParts that are used across basic blocks in the innermost loop can be assigned a fixed register. This ValuePart will be in the fixed register for its entire lifetime and will not be spilled. 
+This is targeted at loops to avoid spilling loop induction values or other values used in the innermost loop.
+
+Otherwise all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor and has only one predecessor. This avoids having to store the register state across BasicBlocks.
