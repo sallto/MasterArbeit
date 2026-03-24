@@ -28,6 +28,29 @@ author = {Gregory J. Chaitin and Marc A. Auslander and Ashok K. Chandra and John
 keywords = {Register allocation, Optimizing compilers, Graph coloring},
 abstract = {Register allocation may be viewed as a graph coloring problem. Each node in the graph stands for a computed quantity that resides in a machine register, and two nodes are connected by an edge if the quantities interfere with each other, that is, if they are simultaneously live at some point in the object program. This approach, though mentioned in the literature, was never implemented before. Preliminary results of an experimental implementation in a PL/I optimizing compiler suggest that global register allocation approaching that of hand-coded assembly language may be attainable.}
 }
+@phdthesis{hack-thesis,
+    author       = {Hack, Sebastian},
+    year         = {2007},
+    title        = {Register allocation for programs in SSA Form},
+    doi          = {10.5445/KSP/1000007166},
+    publisher    = {{Universit{\"{a}}tsverlag Karlsruhe}},
+    isbn         = {978-3-86644-180-4},
+    abstract     = {This book investigates register allocation for programs in static single-assignment form.{\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}Its main result is that the interference graphs of SSA-form programs are chordal.{\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}This gives the compiler precise knowledge over the register demand and allows for separating spilling, assignment and coalescing. {\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}For each of these phases, we present methods specially tailored to the SSA setting and provide a first evaluation.},
+    keywords     = {Compiler, {\"{U}}bersetzerbau, Register <Informatik>, Codeoptimierung, Codegenerierung, Graphf{\"{a}}rbung, Registerzuteilung, SSA Form, Compiler, Register Allocation, Codegeneration, SSA Form, Graph Coloring},
+    pagetotal    = {123},
+    language     = {english}
+}
+@INPROCEEDINGS{ilp-regalloc,
+  author={Changqing Fu and Wilken, K.},
+  booktitle={35th Annual IEEE/ACM International Symposium on Microarchitecture, 2002. (MICRO-35). Proceedings.}, 
+  title={A faster optimal register allocator}, 
+  year={2002},
+  volume={},
+  number={},
+  pages={245-256},
+  keywords={Registers;Embedded system;Computer architecture;Optimizing compilers;Energy consumption;Program processors;Degradation;Integer linear programming;Microarchitecture},
+  doi={10.1109/MICRO.2002.1176254}}
+
 @INPROCEEDINGS{Cooper06,
   author={Cooper, K.D. and Dasgupta, A.},
   booktitle={International Symposium on Code Generation and Optimization (CGO'06)}, 
@@ -56,7 +79,23 @@ month = may,
 pages = {109–121},
 numpages = {13}
 }
-
+@inproceedings{wimmer-06-linear-scan,
+author = {Wimmer, Christian and M\"{o}ssenb\"{o}ck, Hanspeter},
+title = {Optimized interval splitting in a linear scan register allocator},
+year = {2005},
+isbn = {1595930477},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1064979.1064998},
+doi = {10.1145/1064979.1064998},
+abstract = {We present an optimized implementation of the linear scan register allocation algorithm for Sun Microsystems' Java HotSpot™ client compiler. Linear scan register allocation is especially suitable for just-in-time compilers because it is faster than the common graph-coloring approach and yields results of nearly the same quality.Our allocator improves the basic linear scan algorithm by adding more advanced optimizations: It makes use of lifetime holes, splits intervals if the register pressure is too high, and models register constraints of the target architecture with fixed intervals. Three additional optimizations move split positions out of loops, remove register-to-register moves and eliminate unnecessary spill stores. Interval splitting is based on use positions, which also capture the kind of use and whether an operand is needed in a register or not. This avoids the reservation of a scratch register.Benchmark results prove the efficiency of the linear scan algorithm: While the compilation speed is equal to the old local register allocator that is part of the Sun JDK 5.0, integer benchmarks execute about 15\% faster. Floating-point benchmarks show the high impact of the Intel SSE2 extensions on the speed of numeric Java applications: With the new SSE2 support enabled, SPECjvm98 executes 25\% faster compared with the current Sun JDK 5.0.},
+booktitle = {Proceedings of the 1st ACM/USENIX International Conference on Virtual Execution Environments},
+pages = {132–141},
+numpages = {10},
+keywords = {register allocation, optimization, linear scan, just-in-time compilation, java, graph-coloring, compilers},
+location = {Chicago, IL, USA},
+series = {VEE '05}
+}
 @inproceedings{linear-scan-og,
 author = {Poletto, Massimiliano and Engler, Dawson R. and Kaashoek, M. Frans},
 title = {tcc: a system for fast, flexible, and high-level dynamic code generation},
@@ -73,4 +112,28 @@ numpages = {13},
 location = {Las Vegas, Nevada, USA},
 series = {PLDI '97}
 }
+@InProceedings{hack-chordal,
+author="Hack, Sebastian
+and Grund, Daniel
+and Goos, Gerhard",
+editor="Mycroft, Alan
+and Zeller, Andreas",
+title="Register Allocation for Programs in SSA-Form",
+booktitle="Compiler Construction",
+year="2006",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="247--262",
+abstract="As register allocation is one of the most important phases in optimizing compilers, much work has been done to improve its quality and speed. We present a novel register allocation architecture for programs in SSA-form which simplifies register allocation significantly. We investigate certain properties of SSA-programs and their interference graphs, showing that they belong to the class of chordal graphs. This leads to a quadratic-time optimal coloring algorithm and allows for decoupling the tasks of coloring, spilling and coalescing completely. After presenting heuristic methods for spilling and coalescing, we compare our coalescing heuristic to an optimal method based on integer linear programming.",
+isbn="978-3-540-33051-6"
+}
 
+
+@book{graph-coloring-np-complete,
+author = {Garey, Michael R. and Johnson, David S.},
+title = {Computers and Intractability; A Guide to the Theory of NP-Completeness},
+year = {1990},
+isbn = {0716710455},
+publisher = {W. H. Freeman \& Co.},
+address = {USA}
+}
