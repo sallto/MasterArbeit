@@ -17,7 +17,7 @@ In addition, deciding how many registers a program requires and deciding wether 
 
 Practical RA need to rely on heuristics at all steps, to find a allocation in a reasonable time. We will illustrate this with the seminal work by Chaitin~\cite{chaitin1981} on the subject. Note that we will assume a theoretical regular architecture for now. We will address archtectural constraints and their associated complications later.
 
-\subsection{Chaitlin Style Graph Coloring Register Allocation}
+\subsection{Chaitin Style Graph Coloring Register Allocation}
 
 \begin{figure}
 \centering
@@ -78,3 +78,121 @@ This approach is simple and non-iterative and therefore attractive for use in a 
 
 \section{Register Allocation on SSA programs}
 
+
+\definecolor{ssaBlue}{RGB}{40,100,220}
+\definecolor{nonSsaRed}{RGB}{200,50,50}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single
+}
+
+\begin{figure}[t]
+\centering
+
+\begin{minipage}[t]{0.42\linewidth}
+\vspace{0pt}
+\begin{lstlisting}
+%a  = ...
+%b  = ...
+%c  = ...
+%d  = add i32 %b, %c
+%e  = add i32 %d, %a
+%a_1 = i32 %e (redefinition of a)
+\end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.54\linewidth}
+\vspace{0pt}
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  common/.style={circle, draw=black, thick, minimum size=8mm, inner sep=0pt},
+  ssaonly/.style={circle, draw=ssaBlue, text=ssaBlue, thick, minimum size=8mm, inner sep=0pt},
+  nonssaonly/.style={circle, draw=nonSsaRed, text=nonSsaRed, thick, minimum size=8mm, inner sep=0pt},
+  commonedge/.style={black, thick},
+  ssaedge/.style={ssaBlue, thick},
+  nonssaedge/.style={nonSsaRed, very thick, dashed}
+]
+
+% nodes common to both SSA and non-SSA
+\node[common] (a)  at (0,0) {$a$};
+\node[common] (b)  at (-1.4,1.2) {$b$};
+\node[common] (c)  at ( 1.4,1.2) {$c$};
+\node[common] (d)  at (-1.2,-1.3) {$d$};
+\node[common] (e)  at ( 1.2,-1.3) {$e$};
+
+% SSA-only node
+\node[ssaonly] (a1) at (3.2,0) {$a_1$};
+
+% edges present in both interference graphs
+\draw[commonedge] (a) -- (b);
+\draw[commonedge] (a) -- (c);
+\draw[commonedge] (b) -- (c);
+\draw[commonedge] (b) -- (d);
+\draw[commonedge] (d) -- (e); 
+
+\draw[nonssaedge] (a) -- (e);
+\draw[ssaedge] (a1) -- (e);
+
+
+
+% There are no non-SSA-only edges for this exact snippet.
+% There are also no SSA-only edges here; only the SSA-only node a_1.
+
+
+\end{tikzpicture}
+\end{minipage}
+
+\caption{Example snippet of LLVM-IR. Assume that \texttt{\%a\_1} is a redefinition of \texttt{\%a} in the original program. This would add the red edge in the interference graph, creating a cycle of length 4 with other edges connecting the cycle nodes. Therefore, the graph with the red edge is not chordal. The SSA version adds a new node \texttt{\%a\_1} that removes the cycle, therefore the graph with the blue elements remains chordal.}
+\label{fig:ssa-chordal-graph}
+\end{figure}
+
+Limitations of previously discussed approaches primarily stemmed from the NP-completeness of the underlying allocation problem. For SSA programs, the interference graph can no longer be arbitrary, but is always chordal~\cite{hack-chordal}.
+
+Chordal graphs are graphs where every cycle of length four or more has a chord, an edge connecting two vertices in the cycle that is not itself part of the cycle (see Fig.~\ref{fig:ssa-chordal-graph}). 
+
+Chordal graphs have a number of useful properties, including the fact that they can be colored in polynomial time.
+Additionally, the required number of colors is equal to the size of the largest subset of vertices that are all adjacent in the graph, which is are determined by the program points with the maximal register pressure~\cite{hack-thesis}.
+
+SSA register allocators can therefore first use a spilling phase to reduce the register pressure to at most $k$ at each program point, and then color the resulting chordal graph (this is possible even without constructing the graph explicitly~\cite{hack-thesis}).
+
+Note that these results still assume a regular architecture. For resolving PHI nodes with cycles and loops, as well as constrained instructions, additional registers may be necessary. By splitting live ranges around constrained instructions some of these problems can be avoided, but doing so introduces additional work in a later coalescing phase~\cite{hack-thesis}. 
+
+As our work is focused on register allocation speed rather than perfect allocation quality, and we lack some required information to employ these techniques, we do not consider these issues further.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    >=Latex,
+    box/.style={
+        draw,
+        minimum width=2.5cm,
+        minimum height=1.1cm,
+        align=center
+    }
+]
+
+% Nodes
+\node[box] (build) {Spill};
+\node[box, right=0.5cm of build] (coalesce) {Color};
+\node[box, right=0.5cm of coalesce] (color) {Coalesce};
+
+% Main horizontal flow
+\draw[->] ($(build.west)+(-1.0,0)$) -- (build.west);
+\draw[->] (build.east) -- (coalesce.west);
+\draw[->] (coalesce.east) -- (color.west);
+\draw[->] (color.east) -- ++(1.0,0);
+
+
+\end{tikzpicture}
+\caption{Simplified overview of the steps in a SSA register allocator.}
+\label{fig:ssa-steps}
+\end{figure}
+
+
+
+\section{TPDE}
