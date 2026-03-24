@@ -198,7 +198,7 @@ As our work is focused on register allocation speed rather than perfect allocati
 \section{TPDE}
 \label{sec:tpde}
 
-TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most IRs without a translation step, although this work will focus on LLVM-IR in particular. 
+TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most IRs without a translation step, although this work will focus on LLVM-IR in particular. This also entails that TPDE cannot modify the IR in any way.
 
 In TPDE functions consist of a sequence of basic blocks, which in turn consist of a sequence of instructions. Instructions are represented as a list of operands and a list of results both of which are made of values. 
 Values can have multiple parts, where each ValuePart has a RegisterBank and size attached. ValueParts can be stored in their designated stack slot or in a register at any program point. 
@@ -215,7 +215,7 @@ In addition to the ValuePartRefs they can also allocate scratch registers, which
 
 
 \begin{lstlisting}[float,frame=none,caption={Example instruction compiler for an 64-bit unsigned division instruction for x86-64. The framework will move values into registers and create a copy of the first operand if required. We use a ScratchReg to clear the \texttt{RDX} register.}, label={lst:example-div}, language=C++,captionpos=b]
-void emit_udiv64(IRValueRef inst) {
+void emit_udiv64(IRInstr inst) {
     ValuePartRef lhs_ref = val_ref(inst->getOperand(0), 0); // Handle for operand 0, part 0
     ValuePartRef rhs_ref = val_ref(inst->getOperand(1), 0); // Handle for operand 1, part 0
     ScratchReg rdx_scratch{}; // Scratch for RDX, unspillable
@@ -241,4 +241,20 @@ This is targeted at loops to avoid spilling loop induction values or other value
 
 Otherwise all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor and has only one predecessor. This avoids having to store the register state across BasicBlocks.
 
-\subsection{}
+\subsection{TPDE-specific challanges for Register Allocation}
+
+As previously espablished, instruction compilers may require more or fewer register than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the codegeneration step is final and intelligent register choices have to be calculated beforehand. 
+
+Fortunately in practice most instructions behave in a regular way. 
+In particular we will make the following regularity assumptions, which we assume to hold for most instructions and programs:
+
+
+\begin{itemize}
+    \item Most Values have one part.
+    \item Most instructions need exactly as many registers as their operands and results suggest.
+    \item Most instructions do not need specific registers or clobber non-result registers.
+    \item Most loops are executed often so that spills and reloads outside a loop are always preferred.
+    \item Most loops are reducible.
+\end{itemize}
+
+Our work will utilize these assumptions while making sure the approach is remains correct, but potentially suboptimal in the presence of irregularity.
