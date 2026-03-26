@@ -1,21 +1,21 @@
 % !TeX root = ../main.tex
 \chapter{Background}
 \label{ch:background}
-In this chapter, we will introduce the basic concepts of register allocation and the particular importance of the SSA form. We then brievely describe the TPDE backend framework and the resulting challenges building register allocation on top of it.
+In this chapter, we will introduce the basic concepts of register allocation and the particular importance of the SSA form. We then briefly describe the TPDE backend framework and the resulting challenges building register allocation on top of it.
 
 \section{Register Allocation on non-SSA programs}
 \label{sec:regalloc-non-ssa}
 
 Register Allocation is the process of assigning values from a program to a limited number of $k$ physical registers. This process is commonly modeled as finding the Graph Coloring of an Interference graph corresponding to the program.
 
-The nodes in an intereference graph correspond to the values in a program, and edges between them indicate that the connected values interfere with eachother and therefore cannot be in the same register. This nicely corresponds to Graph coloring where connected nodes may not be assigned the same color.
+The nodes in an interference graph correspond to the values in a program, and edges between them indicate that the connected values interfere with each other and therefore cannot be in the same register. This nicely corresponds to Graph coloring where connected nodes may not be assigned the same color.
 
-Therefore a valid coloring with at most $k$ colors would be a valid register allocation for the corresponding program on an perfectly regular archtiecture with at least $k$ registers.
+Therefore, a valid coloring with at most $k$ colors would be a valid register allocation for the corresponding program on a perfectly regular architecture with at least $k$ registers.
 
-In practice, using such an approach directely is unfeasible as GC is NP-complete in the number of values~\cite{graph-coloring-np-complete}, and any arbitrary IG can be used to construct a program having the same IG~\cite{chaitin1981}. 
-In addition, deciding how many registers a program requires and deciding wether $k$ registers are sufficient are also NP-complete~\cite{hack-thesis}.
+In practice, using such an approach directly is unfeasible as GC is NP-complete in the number of values~\cite{graph-coloring-np-complete}, and any arbitrary IG can be used to construct a program having the same IG~\cite{chaitin1981}. 
+In addition, deciding how many registers a program requires and deciding whether $k$ registers are sufficient are also NP-complete~\cite{hack-thesis}.
 
-Practical RA need to rely on heuristics at all steps, to find a allocation in a reasonable time. We will illustrate this with the seminal work by Chaitin~\cite{chaitin1981} on the subject. Note that we will assume a theoretical regular architecture for now. We will address archtectural constraints and their associated complications later.
+Practical RA needs to rely on heuristics at all steps, to find allocations in a reasonable time. We will illustrate this with the seminal work by Chaitin~\cite{chaitin1981} on the subject. Note that we will assume a theoretical regular architecture for now. We will address architectural constraints and their associated complications later.
 
 \subsection{Chaitin Style Graph Coloring Register Allocation}
 
@@ -56,21 +56,21 @@ Practical RA need to rely on heuristics at all steps, to find a allocation in a 
 
 First the Interference Graph itself has to be constructed. This is done by scanning the program and adding edges between values that are live at the same time. 
 
-Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have more edges than previously. 
+Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have a higher degree than the original nodes.
 
-Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spill code. This process is repeated until the graph is empty.
+Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spill code. Spilling removes edges from the graph, as the lifetime of the spilled value is reduced. This process is repeated until the graph is empty.
 
-Now all nodes are on the coloring stack, where we reinsert them into the graph and assign them a color. This will always be possible since they must have fewer than $k$ neighbors. This produces a valid coloring of the final program.
+Now all nodes are on the coloring stack, where we reinsert them into the graph and assign them a color. This will always be possible since all nodes on the stack must have fewer than $k$ neighbors. This produces a valid coloring of the final program.
 
 While this approach produces good results in practice, building the Inference Graph is an expensive operation and the iterative nature of the algorithm make it unattractive for use in a JIT compiler~\cite{Cooper06}. 
 
-While there have been countless improvements to the original algorithm, the basic iterative structure remains the same, prompting different approaches to the problem.
+While there have been multiple improvements to the original algorithm, the basic iterative structure remains the same, prompting different approaches to the problem.
 
 \subsection{Other Approaches}
 
 One alternate approach is to formulate Register Allocation as an Integer Linear Programming problem. While this can produce optimal results it is also NP-complete and the worst case runtimes of several minutes makes them unattractive for JIT compilers\cite{ilp-regalloc}.
 
-The other common approach is to use a linear scan allocator~\cite{linear-scan-og}. This approach avoids the expensive IG datastructure in favor of using a total ordering of all program instructions. This ordering is used to determine the single live range of each value, for example starting at instruction $i$ and ending at instruction $j$ ($[i,j]$). The live ranges are then assigned to registers in the order of their interval start. 
+The other common approach is to use a linear scan allocator~\cite{linear-scan-og}. This approach avoids the expensive IG data structure in favor of using a total ordering of all program instructions. This ordering is used to determine the single live range of each value, for example starting at instruction $i$ and ending at instruction $j$ ($[i,j]$). The live ranges are then assigned to registers in the order of their interval start. 
 
 Once the algorithm runs out of registers, it spills a value, splitting its live range into two parts. The spilled value is typically chosen based upon the furthest live range end.
 
@@ -189,7 +189,7 @@ As our work is focused on register allocation speed rather than perfect allocati
 
 
 \end{tikzpicture}
-\caption{Simplified overview of the steps in a SSA register allocator.}
+\caption{Simplified overview of the steps in an SSA register allocator.}
 \label{fig:ssa-steps}
 \end{figure}
 
@@ -198,19 +198,19 @@ As our work is focused on register allocation speed rather than perfect allocati
 \section{TPDE}
 \label{sec:tpde}
 
-TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most IRs without a translation step, although this work will focus on LLVM-IR in particular. This also entails that TPDE cannot modify the IR in any way.
+TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most SSA intermediate representations without a translation step, although this work will focus on LLVM-IR in particular. This also entails that TPDE cannot modify the IR in any way.
 
 In TPDE functions consist of a sequence of basic blocks, which in turn consist of a sequence of instructions. Instructions are represented as a list of operands and a list of results both of which are made of values. 
-Values can have multiple parts, where each ValuePart has a RegisterBank and size attached. ValueParts can be stored in their designated stack slot or in a register at any program point. 
+Values can have multiple parts, where each part has a bank and size associated. Each part can be stored in their designated stack slot or in a register at any program point. 
 
-Lifetimes are managed at a Value level and is calculated using approximated liveness with a start and end BasicBlock as well as a number of references, after which the Value is dead and its stack slot can be reused. 
+Lifetime is managed at a value level and is calculated using approximated liveness with a start and end basic block as well as a number of references, after which the Value is dead, and its stack slot can be reused. 
 
-TPDE combines instruction selection, register allocation and instruction encoding into a single codegeneration step. This is done by user provided instruction compilers for each IR instruction that encode the semantics of the instruction and compile them directly into machine instructions.
+TPDE combines instruction selection, register allocation and instruction encoding into a single code generation step. This is done by user provided instruction compilers for each IR instruction that encode the semantics of the instruction and compile them directly into machine instructions.
 \subsection{Instruction Compilers}
 
 Instruction compilers are responsible for getting handles to the actual Values, which prevent them from being spilled as long as they are alive. 
 They then load the operands into registers or use them as memory operands and encode the instruction. 
-In addition to the ValuePartRefs they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see Lst.~\ref{lst:example-div}).
+In addition to the normal Values, they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see Lst.~\ref{lst:example-div}).
 
 
 
@@ -230,23 +230,23 @@ void emit_udiv64(IRInstr inst) {
 } // Release handles and scratch
 \end{lstlisting}
 
-Instruction compilers can allocate more or less registers than is suggested by the number of their operands and results. As TPDE is unaware of the true semantics of the instruction, this makes register allocation, which has to operate before codegeneration, more difficult.
+Instruction compilers can allocate more or less registers than is suggested by the number of their operands and results. As TPDE is unaware of the true semantics of the instruction, this makes register allocation, which has to operate before code generation, more difficult.
 
 \subsection{Current Register Allocation in TPDE}
 
-Whenever a register is requested by an instruction compiler, the framework will try to use the existing register if a ValuePart currently is in one, otherwise it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining livetime of the spilled value. For requests of a specific register, the value cantained in that register will be spilled.
+Whenever a register is requested by an instruction compiler, the framework will try to use the existing register if the requested part currently is in one, otherwise it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining lifetime of the spilled value. For requests of a specific register, the value contained in that register will be spilled.
 
-In addition to this basic mechanism, ValueParts that are used across basic blocks in the innermost loop can be assigned a fixed register. This ValuePart will be in the fixed register for its entire lifetime and will not be spilled. 
+In addition to this basic mechanism, values that are used across basic blocks in the innermost loop can be assigned a fixed register. Such a fixed part will be in the same register for its entire lifetime and will never be spilled. 
 This is targeted at loops to avoid spilling loop induction values or other values used in the innermost loop.
 
-Otherwise all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor and has only one predecessor. This avoids having to store the register state across BasicBlocks.
+Otherwise, all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor and has only one predecessor. This avoids having to store the register state across basic blocks.
 
-\subsection{TPDE-specific challanges for Register Allocation}
+\subsection{TPDE specific challenges for Register Allocation}
 
-As previously espablished, instruction compilers may require more or fewer register than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the codegeneration step is final and intelligent register choices have to be calculated beforehand. 
+As previously established, instruction compilers may require more or fewer register than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the code generation step is final and intelligent register choices have to be calculated beforehand. 
 
-Fortunately in practice most instructions behave in a regular way. 
-In particular we will make the following regularity assumptions, which we assume to hold for most instructions and programs:
+Fortunately in practice most instructions behave regularly. 
+To this end, we will make the following regularity assumptions, which we assume to hold for most instructions and programs:
 
 
 \begin{itemize}
@@ -257,4 +257,4 @@ In particular we will make the following regularity assumptions, which we assume
     \item Most loops are reducible.
 \end{itemize}
 
-Our work will utilize these assumptions while making sure the approach is remains correct, but potentially suboptimal in the presence of irregularity.
+Our work will utilize these assumptions while making sure the approach remains correct, but potentially suboptimal in the presence of irregularity.
