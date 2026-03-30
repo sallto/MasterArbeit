@@ -221,3 +221,35 @@ isbn = {0716710455},
 publisher = {W. H. Freeman \& Co.},
 address = {USA}
 }
+@InProceedings{fast-liveness,
+author="Boissinot, Benoit
+and Brandner, Florian
+and Darte, Alain
+and de Dinechin, Beno{\^i}t Dupont
+and Rastello, Fabrice",
+editor="Yang, Hongseok",
+title="A Non-iterative Data-Flow Algorithm for Computing Liveness Sets in Strict SSA Programs",
+booktitle="Programming Languages and Systems",
+year="2011",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="137--154",
+abstract="We revisit the problem of computing liveness sets (the sets of variables live-in and live-out of basic blocks) for programs in strict static single assignment (SSA). In strict SSA, aka SSA with dominance property, the definition of a variable always dominates all its uses. We exploit this property and the concept of loop-nesting forest to design a fast two-phases data-flow algorithm: a first pass traverses the control-flow graph (CFG), propagating liveness information backwards, a second pass traverses a loop-nesting forest, updating liveness sets within loops. The algorithm is proved correct even for irreducible CFGs. We analyze its algorithmic complexity and evaluate its efficiency on SPECINT 2000. Compared to traditional iterative data-flow approaches, which perform updates until a fixed point is reached, our algorithm is 2 times faster on average. Other approaches are possible that propagate from uses to definitions, one variable at a time, instead of unioning sets as in data-flow analysis. Our algorithm is 1.43 times faster than the fastest alternative on average, when sets are represented as bitsets and for optimized programs, which have non-trivial live-ranges and a larger number of variables.",
+isbn="978-3-642-25318-8"
+}
+
+@InProceedings{hack-spilling,
+author="Braun, Matthias
+and Hack, Sebastian",
+editor="de Moor, Oege
+and Schwartzbach, Michael I.",
+title="Register Spilling and Live-Range Splitting for SSA-Form Programs",
+booktitle="Compiler Construction",
+year="2009",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="174--189",
+abstract="Register allocation decides which parts of a variable's live range are held in registers and which in memory. The compiler inserts spill code to move the values of variables between registers and memory. Since fetching data from memory is much slower than reading directly from a register, careful spill code insertion is critical for the performance of the compiled program.",
+isbn="978-3-642-00722-4"
+}
+

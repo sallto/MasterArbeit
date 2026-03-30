@@ -3,20 +3,241 @@
 
 \chapter{Approach}\label{chapter:approach}
 
-\section{Fast Liveness}
-A non iteraite liveness analysis on strict SSA.
+\begin{figure}
+\begin{minipage}[l]{0.6\textwidth}
+    \begin{flushleft}
+        
 
-\section{combining liveness sets and next-use distance}
+    \begin{tikzpicture}[
+    >=Stealth,
+    node distance=1cm and 1cm,
+    box/.style={
+        draw,
+        rectangle,
+        minimum width=2.0cm,
+        minimum height=1.3cm,
+        align=center
+    },
+    lab/.style={font=\itshape}
+]
 
-\section{Spilling with next-use distance}
-\begin{itemize}
-    \item Irreducable control flow
-    \item Spill on definition
-\end{itemize}
+% Nodes
+\node[box] (S) { $x \gets \cdots$\\[2pt] \textcolor{blue}{spill($x$)}\\[2pt] $y \gets \cdots$\\[2pt] \textcolor{blue}{spill($y$)}};
 
-\section{Register Allocation with Repairing}
-\begin{itemize}
-    \item Multi- part challenges
-\end{itemize}
+\node[box, below left=0.6cm and 0.1cm of S] (L) {$\gets x$\\[4pt] \regpressure{1}\\[4pt] \textcolor{TBgreen}{reload(x)} \\[2pt] $\gets x$};
 
-\section{VerificationIR (kind of useless)}
+\node[box, below right=0.6cm and 0.1cm of S] (B) {\regpressure{}\\[2pt] $\gets y$ \\[2pt] \textcolor{blue}{evict($y$)} \\[2pt] \textcolor{blue}{reload($x$)}};
+
+\node[box, below=0.9cm of B] (H) {$\gets x$\\[4pt] $\vdots$};
+
+\node[box, below=0.5cm and 0.5cm of L] (E) {\textcolor{TBgreen}{reload($y$)}\\[2pt]$\gets y$\\[4pt] \textcolor{TBgreen}{$x: r_6 \gets r_5$} \\[4pt] \textcolor{red}{$z: r_5 \gets r_5 + 1$ } \\[4pt] $\gets x:$ \textcolor{TBgreen}{$r_6$}};
+
+% Labels
+\node[lab, right=0.35cm of S] {$S$};
+\node[lab, above left=0.05cm and -0.1cm of L] {$L$};
+\node[lab, above right=0.05cm and -0.1cm of B] {$B$};
+\node[lab, left=0.25cm of H] {$H$};
+\node[lab, right=0.35cm of E] {$E$};
+
+% Arrows
+\draw[->] (S.south west) -- (L.north);
+\draw[->] (S.south east) -- (B.north);
+
+\draw[->] (L.south) -- (E.north);
+\draw[->] (B.south) -- (H.north);
+
+
+\draw[->] (H.south) -- ++(0, -0.2) -- ++(-2.5, 0) -- ++(0,2.3) -- ++(-1.9,0) -- (E);
+
+% Loop on H
+\draw[->] (H.south) -- ++(0, -0.2) -- ++(1.5, 0) -- ++(0,2) -- ++(-1.5,0) -- (H.north);
+
+\end{tikzpicture}
+    \end{flushleft}
+\end{minipage}
+\hfill
+\begin{minipage}[r]{0.4\textwidth}
+    \begin{enumerate}
+        \item Lifetime analysis with calculation of next-use distances
+        \item[2.1.] \textcolor{blue}{Spilling pass} to reduce register pressure at critical points (\regpressure{})
+        \item[2.2.] During spilling calculate optimal loop header register state 
+        \item[3.] \textcolor{TBgreen}{Codegen} with repairing at constrained instructions (see $z$) and insertion of reloads. 
+    \end{enumerate}
+\end{minipage}
+\end{figure}
+
+This chapter describes how we extend the TPDE framework to support better register allocation choices, while keeping the core code generation as a single pass.
+
+\section{Liveness with next-use Distance}
+
+As described in \autoref{sec:tpde}, the existing liveness analysis in TPDE is on the Basic Block level and does not support lifetime holes.
+
+This is insufficient for a effective register allocation, as it creates too many interference between variables, that are not actually present in the original program.
+
+To resolve this we introduce a precise liveness analysis, that also calculates the next-use distance at each point in the program.
+
+For this we adapt the approach by \textcite{fast-liveness}.  %todo fix this citation
+
+We define the next-use as the number of instructions between \textit{start of the current block} and the next use of the variable. This means that next-uses are always strictly increasing in a block. The next-use distance can be easily calculated using the index of the current instruction and the next-use. 
+
+\subsection{Datastructures}
+
+We chose to store this information as a sorted (by construction) list of next-uses for each variable and block. Definitions are marked by having their highest bit set, therefore a value is defined in a block if its first next-use entry has the highest bit set (and is not dead). Dead values have a next-use of \texttt{u32::max} or no entry of the value is neither live-in nor defined in the block. A value is therefore live-out if its last entry is not \texttt{u32::max}. 
+
+For example, the following array describes a value that is defined in the second instruction of the block, then used in the third (as an operand) and is dead afterwards.
+
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        0 & 1 & 2 \\
+        \hline
+        \texttt{(\texttt{1<<31}) |  1} & 3 & \texttt{u32::max} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+If a values is live-out, its last entry would be the size of the block plus the minimum next-use of the successor blocks, ensuring that the list remains sorted.
+
+In addition, we apply a loop exit penalty for the live-out distances if the sucessor is outside the current loop. This is simply a large number added to the distance, that accounts for loops being executed often, according to our regularity assumtions (see \autoref{sec:tpde}).  This will encourage the later spilling pass to avoid spilling loop variables~\cite{hack-spilling}.
+
+Overall this allows for finding the next-use of a values in logarithmic time in the number of uses in a basic block. As well as checking live-in, live-out and wether it was defined in the block in constant time. In addition checking a value is used in a loop is also constant time, as we assume all other uses to be below the chosen loop exit penalty.
+
+% todo illustration / figure for both subsections of algorithm
+\subsection{Partial Liveness}
+
+First we calculate partial liveness for each block by traversing the CFG in post order, skipping loop edges. 
+For each block we precess the instructions in forward order, while tracking the current instruction index and noting the definitions and uses of each variable. 
+
+To find the live out distances, we iterate over the direct suceessors, once again skipping loop edges and taking the minimum next-use from the sucessors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
+
+Note that we consider values that are used only in a phi definition not live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
+
+
+\subsection{Liveness propagation}
+
+To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness}. %todo fix citation
+
+We propagate liveness, by marking live-in values from a loop header as live thoughout all child loops (the children of the loop header in the loop forest). This corresponds to adding a single next-use entry for each value in the children of the loop header.
+The next-use entry is larger than the size of block indicating the value is live-in and live-out, but neither used nor defined in the block.
+
+Notice that this calculation is not correct for irreducible loops, that have multiple loop headers. As we consider irreducible loops to be rare, we do not handle this case as the insufficient liveness information will not affect the correctness of the final generated program. For further details on how to adapt this liveness analysis for irreducible control flow, see \autocite{fast-liveness}.
+
+
+% todo illustration / figure for both subsections of algorithm
+
+
+\section{Spilling}
+
+The primary purpose of the spilling pass is to ensure that the register pressure. To achviele this a spilling pass will typically insert spills and loads into the IR. For SSA form, this will also require inserting phi nodes as the reloaded value has to be distinct from the original value, since any value must have excately one definiton to remain in SSA form. Instead we only store the results of the spilling pass, and ensure that blocks are correctly connected, with each value in one unique location during codegneration.
+
+\subsection{Representing Spills and Reloads}
+
+Since we can't modify the existing IR, inserting the calculated spills and reloads is not possible. In particular we would need to check at every instruction wether there is a reload or spill that needs to be executed.
+While this would be possible, it requires a lot of book keeping. Instead we simplify the representations of spills and reloads. For reloads, we avoid storing them unless we are branching to a loop header. Otherwise the codegeneration will simply load the value once it is needed.
+
+For spills we only store wether a value should be spilled according to the analysis. Then during codegeneration we insert the spill immediately after its definition. This simplifies analysis, as we don't need to track which vales where spilled in which branches, to avoid values being lost or unnecessarily spilled again. During codegeneration we only check a single bit in a bitset for the results, reducing the overhead of the spilling pass.
+
+This approximation of spills does not result in the optimal solution in all cases, especially around blocks with very different execution frequencies (see \autoref{fig:bad_case_spill}). This is particularily relevant for loops, which we assume to execute often.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    >=Stealth,
+    node distance=1.0cm and 1.4cm,
+    box/.style={
+        draw,
+        rectangle,
+        minimum width=1.7cm,
+        minimum height=1.4cm,
+        align=center
+    },
+    lab/.style={font=\itshape}
+]
+
+
+
+% Nodes
+\node[box] (S) {$x \gets $\\ \textcolor{TBblue}{spill(x)}};
+
+\node[box, below left=0.4cm and 0.2cm of S] (L) {\vdots};
+\node[box, below right=0.4cm and 0.6cm of S] (R) {\textcolor{TBgreen}{spill(x)}\\\regpressure{\vdots}\\ \textcolor{TBgreen}{reload(x)}};
+
+\node[box, below=2.4cm of S] (M) {\textcolor{TBblue}{reload(x)}\\$\dots \gets x$};
+
+% Labels
+\node[lab, right=0.25cm of S] {$S$};
+\node[lab, left=0.2cm of L] {$T_1$};
+\node[lab, right=0.2cm of R] {$T_2$};
+\node[lab, above=0.25cm of M] {$M$};
+
+
+\node[font=\scriptsize\itshape, anchor=south] at ([yshift=9pt]R.north)
+    {unlikely};
+
+% Arrows
+\draw[->,very thick] (S.south west) -| (L.north);
+\draw[->,dashed] (S.south east) -| (R.north);
+
+\draw[->] (L.south) |- (M.west);
+\draw[->] (R.south) |- (M.east);
+
+\end{tikzpicture}
+\caption{Example of a bad case for our simplified analysis. Green represents the ideal spill and reload locations. Blue is our approximation. $T_2$ is assumed to have high register pressure, therefore $x$ has to be spilled. We assume that the branch to $T_2$ is unlikely, therefore we generate unnecessary spills and reloads.}
+\label{fig:bad_case_spill}
+\end{figure}
+
+To avoid a similar case as in \autoref{fig:bad_case_spill} for loops, we store the ideal register set for the loop header separately. During code generation the appropriate spills and reloads are generated to match this register set. This ensures that as few spills and reloads as possible are generated within the loop, while still avoiding storing additional state for most basic blocks.
+
+\subsection{Calculating spills}
+
+We use a simplified \texttt{MIN} algorithm based on the work of \citeauthor{hack-spilling}. 
+
+For each block we simulate the register set $W$ by limiting the size of $W$ to $k$ registers. For values that are live but need to be removed from $W$, we mark them as spilled.
+Values with multiple parts always need to be fully in $W$ or fully spilled.
+
+We spill according to the next-use distance, once before the instruction for operands and once after the instruction to ensure space for the results. 
+
+At this stage, we do not consider most instruction irregularities, except for calls. Calls are treated with a number of implicit results equivalent to the number of volatile registers. 
+All other irregularities are ignored (and are not known to TPDE at this stage).
+
+
+\begin{algorithm}
+\caption{The MIN algorithm}
+\centering
+\begin{minipage}[t]{0.4\linewidth}
+\begin{algorithmic}[0]
+\Function{limit}{$W, \textit{insn}, cap$}
+    \State sortByNextUse$(W, \textit{insn})$
+    \For{$v \in W[cap\!:\!-1]$}
+        \If{$\mathrm{nextUse}(v) \neq \infty$}
+            \State mark $v$ as spilled
+        \EndIf
+    \EndFor
+    \State $W \gets W[0\!:\!cap]$
+\EndFunction
+\end{algorithmic}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.57\linewidth}
+\begin{algorithmic}[0]
+\Function{minAlgorithm}{$\textit{block}, W$}
+    \For{$\textit{insn} \in \textit{block.instr}$}
+        \State $W \gets W \cup \textit{insn.operands}$
+        \State limit$(W, \textit{insn}, k)$
+        \State limit$(W, \textit{insn.next}, k - |\textit{insn.results}|)$
+        \State $W \gets W \cup \{\textit{insn.results}\}$
+    \EndFor
+\EndFunction
+\end{algorithmic}
+\end{minipage}
+
+\caption{Simplified \texttt{MIN} algorithm for a single basic block. }
+
+\end{algorithm}
+
+We start with $W$ containing the function arguments. Then for each block other block we initialize $W$ with the intersection of all incoming values from predecessors. Since we don't insert reloads at this stage, the initialization is not critical, unless the current block is a loop header.
+
+For loop headers, we initialize $W$ to only contain variables used in the loop and restrict it to $k-p$ registers, where $p$ is the approximate maximum register pressure in the loop. This pressure $p$ is calculated during the liveness analysis and is simply the maximum number of live variables in any of the loop blocks. 
+This ideally ensures that the loop can be executed without spilling. 
+Since our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
+

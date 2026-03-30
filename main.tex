@@ -13,7 +13,22 @@
 \usetikzlibrary{arrows.meta, positioning,calc}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{ wasysym }
+\usepackage{hyperref}
 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algrenewcommand\algorithmicfunction{\textbf{def}}
+\algrenewcommand\algorithmicfor{\textbf{for}}
+\algrenewcommand\algorithmicif{\textbf{if}}
+\algrenewcommand\algorithmicdo{:}
+\algrenewcommand\algorithmicthen{:}
+\algtext*{EndFunction}
+\algtext*{EndFor}
+\algtext*{EndIf}
+
+\newcommand\regpressure[1]{\textcolor{red}{\lightning #1}}
+\newcommand{\bigO}{\mathcal{O}}
 
 \definecolor{tumblue}{RGB}{0,101,189}
 \definecolor{dkgreen}{rgb}{0,0.6,0}
