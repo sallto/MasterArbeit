@@ -1,3 +1,10 @@
 \chapter{\abstractname}
+For compilers, compiletime and runtime are fundamentally a tradeoff. Therfore frameworks like LLVM provide multiple backends for faster compilation or better codegeneration. 
 
-%TODO: Abstract
+Recently TPDE has shown that compilation speed of LLVM -O0 can be improved by around 20x while keeping a similar runtime. 
+Our work aims to expand TPDE to achieve better codegeneration, while keeping a fast compiletime.
+
+We present a novel register allocation approach, that works without knowledge of the IR instruction semantics and keeps the single-pass codegeneration step introduced by TPDE.
+
+On Spec Int 2017 we achieve a \todo{30\%} runtime improvement over the LLVM -O0 back-end, while keeping a \todo{3x} faster compiletime on optimized IR. 
+Our approach shows the potential for faster lightly optimizing compilers, although we are limited by implementation issues, as well as the LLVM middle end transforamtions leading to difficult to optimize IR for TPDE. 
