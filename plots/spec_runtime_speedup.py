@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import math
 from pathlib import Path
 
 
@@ -89,6 +90,13 @@ def speedup(
     return baseline_runtime / runtime
 
 
+def geometric_mean(values: list[float | None]) -> float | None:
+    valid_values = [value for value in values if value is not None and value > 0]
+    if not valid_values:
+        return None
+    return math.exp(sum(math.log(value) for value in valid_values) / len(valid_values))
+
+
 def build_rows() -> list[dict[str, str]]:
     runtimes = {
         config: parse_runtime_file(BENCH_DIR / filename)
@@ -106,12 +114,20 @@ def build_rows() -> list[dict[str, str]]:
     )
 
     rows: list[dict[str, str]] = []
+    column_values: dict[str, list[float | None]] = {column: [] for column in COLUMNS[1:]}
     for benchmark_id in benchmark_ids:
         row = {"benchmark": BENCHMARK_NAMES.get(benchmark_id, benchmark_id)}
         for column in COLUMNS[1:]:
-            row[column] = format_value(speedup(runtimes, benchmark_id, column))
+            value = speedup(runtimes, benchmark_id, column)
+            column_values[column].append(value)
+            row[column] = format_value(value)
         rows.append(row)
-    
+
+    geomean_row = {"benchmark": "geomean"}
+    for column in COLUMNS[1:]:
+        geomean_row[column] = format_value(geometric_mean(column_values[column]))
+    rows.append(geomean_row)
+
     return rows
 
 

@@ -9,3 +9,4 @@ benchmark,aarch64-clang,aarch64-tpde,o1-aarch64-clang,o1-aarch64-tpde,o1ir-aarch
 641.leela,nan,nan,1.00000,nan,1.00000,1.08192,1.08192,nan,nan,1.00000,nan,0.67955,nan,0.67526
 648.exchange2,nan,nan,1.00000,nan,1.00000,1.54066,1.54066,nan,nan,1.00000,nan,0.51400,0.57519,0.40942
 657.xz,nan,nan,1.00000,nan,1.00000,1.26568,1.26568,nan,nan,nan,nan,nan,nan,nan
+geomean,nan,nan,1.00000,nan,1.00000,0.99295,0.99295,nan,nan,1.00000,nan,0.55706,0.69268,0.61493
