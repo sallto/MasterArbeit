@@ -106,19 +106,84 @@ Overall this allows for finding the next-use of a values in logarithmic time in 
 \subsection{Partial Liveness}
 
 First we calculate partial liveness for each block by traversing the CFG in post order, skipping loop edges. 
-For each block we precess the instructions in forward order, while tracking the current instruction index and noting the definitions and uses of each variable. 
+For each block we process the instructions in forward order, while tracking the current instruction index and noting the definitions and uses of each variable. 
 
-To find the live out distances, we iterate over the direct suceessors, once again skipping loop edges and taking the minimum next-use from the sucessors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
+To find the live out distances, we iterate over the direct suceessors, while skipping loop edges and taking the minimum next-use from the successors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
 
 Note that we consider values that are used only in a phi definition not live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
 
 
 \subsection{Liveness propagation}
 
-To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness}. %todo fix citation
+To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness}, which is already implemented in the existing loop analysis of TPDE. %todo fix citation
 
-We propagate liveness, by marking live-in values from a loop header as live thoughout all child loops (the children of the loop header in the loop forest). This corresponds to adding a single next-use entry for each value in the children of the loop header.
+
+We propagate liveness, by marking live-in values from a loop header as live throughout all child loops (the children of the loop header in the loop forest). This corresponds to adding a single next-use entry for each value in the children of the loop header.
 The next-use entry is larger than the size of block indicating the value is live-in and live-out, but neither used nor defined in the block.
+
+We consider the whole function to be the pseudo loop $L_0$, which is the root of the loop forest. Theresfore this procedure also propagates liveness through the whole function. Whenever a value is propagated to a different loop (including $L_0$), we add the loop exit penalty to the next-use entry.
+
+For large functions, this can lead to many live-through values, which can be problematic as our original datastructure results in one allocation per entry created. Therefore we track the live-through values seperately in a vector, which is later sorted by the index of the value and its next-use entry. This still allows quick access (in logarithmic time of the number of live-though values in the block), while reducing the number of allocations to one per block.
+
+
+\begin{figure}
+    \centering
+
+    %---------------- CFG ----------------%
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            node distance=6mm and 14mm,
+            block/.style={draw, rectangle, rounded corners, minimum width=12mm, minimum height=7mm},
+            >=Latex
+        ]
+            \node[block] (entry) {entry};
+            \node[block, below=of entry] (h1) {$H_1$};
+            \node[block, below=of h1] (b1) {$B_1$};
+            \node[block, right=of entry] (h2) {$H_2$};
+            \node[block, below=of h2] (b2) {$B_2$};
+            \node[block, below=of b2] (x) {end};
+
+            % Forward edges
+            \draw[->] (entry) -- (h1);
+            \draw[->] (h1) -- node[right] {\small in} (b1);
+             \draw[->] (b1.east) -- ++(0.5,0) |- ++(0,3.25) node[above right] {\small exit} -|  (h2.north);
+            \draw[->] (h2) -- node[right] {\small in} (b2);
+            \draw[->] (h2.east) -- ++(1.2,0) |- node[pos=0.25,right] {\small exit} (x.east);
+            \draw[->] (b2) -- ++(-1.2,0) |- node[pos=0.25,right] {\small back} (h2.west);
+            \draw[->] (b1.west) -- ++(-1.2,0) |- node[pos=0.25,left] {\small back} (h1.west);
+
+        \end{tikzpicture}
+        \caption{Control-flow graph}
+    \end{subfigure}
+    \hfill
+    %---------- Loop nesting forest ----------%
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            node distance=10mm and 10mm,
+            loopnode/.style={draw, circle, minimum size=8mm},
+            >=Latex
+        ]
+            \node[loopnode] (root) {$L_0$};
+            \node[loopnode, below left =of root] (l1) {$L_1$};
+            \node[loopnode, below right=of root] (l2) {$L_2$};
+
+            \draw[->] (root) -- (l1);
+            \draw[->] (root) -- (l2);
+
+            \node[below =2mm of l1] (t1) {\small header: $H_1$};
+            \node[below =1mm of t1] (t2) {\small blocks: $B_1$};
+            \node[below =2mm of l2] (t3){\small header: $H_2$};
+            \node[below =1mm of t3] (t4) {\small blocks: $B_2$};
+                   \node[above =5mm of root] (t5){\small header: \texttt{entry}};
+            \node[below =0mm of t5] (t6) {\small blocks: \texttt{end}};
+        \end{tikzpicture}
+        \caption{Loop nesting forest}
+    \end{subfigure}
+
+    \caption{A control-flow graph and its corresponding loop nesting forest~\cite{fast-liveness}. The outermost loop $L_0$ is only the root of the tree, and does not get treated as a loop, this corresponds to the existing loop analysis in TPDE~\cite{tpde}. The edges marked \texttt{in} and \texttt{back} are loop edges, along which the header liveness is propagated. On edges marked \texttt{exit} the loop exit penalty is added if a value is live after the loop.}
+\end{figure}
 
 Notice that this calculation is not correct for irreducible loops, that have multiple loop headers. As we consider irreducible loops to be rare, we do not handle this case as the insufficient liveness information will not affect the correctness of the final generated program. For further details on how to adapt this liveness analysis for irreducible control flow, see \autocite{fast-liveness}.
 
@@ -159,7 +224,7 @@ This approximation of spills does not result in the optimal solution in all case
 % Nodes
 \node[box] (S) {$x \gets $\\ \textcolor{TBblue}{spill(x)}};
 
-\node[box, below left=0.4cm and 0.2cm of S] (L) {\vdots};
+\node[box, below left=0.6cm and 0.2cm of S] (L) {\vdots};
 \node[box, below right=0.4cm and 0.6cm of S] (R) {\textcolor{TBgreen}{spill(x)}\\\regpressure{\vdots}\\ \textcolor{TBgreen}{reload(x)}};
 
 \node[box, below=2.4cm of S] (M) {\textcolor{TBblue}{reload(x)}\\$\dots \gets x$};
@@ -175,7 +240,7 @@ This approximation of spills does not result in the optimal solution in all case
     {unlikely};
 
 % Arrows
-\draw[->,very thick] (S.south west) -| (L.north);
+\draw[->,very thick] ([xshift=-0.5cm] S.south) -- ++(0,-0.1) -| (L.north);
 \draw[->,dashed] (S.south east) -| (R.north);
 
 \draw[->] (L.south) |- (M.west);
@@ -189,15 +254,16 @@ This approximation of spills does not result in the optimal solution in all case
 To avoid a similar case as in \autoref{fig:bad_case_spill} for loops, we store the ideal register set for the loop header separately. During code generation the appropriate spills and reloads are generated to match this register set. This ensures that as few spills and reloads as possible are generated within the loop, while still avoiding storing additional state for most basic blocks.
 
 \subsection{Calculating spills}
+\label{sec:spill_calculation}
 
-We use a simplified \texttt{MIN} algorithm based on the work of \citeauthor{hack-spilling}. 
+We use a simplified \texttt{MIN} algorithm based on the work of \autocite{hack-spilling}. 
 
 For each block we simulate the register set $W$ by limiting the size of $W$ to $k$ registers. For values that are live but need to be removed from $W$, we mark them as spilled.
 Values with multiple parts always need to be fully in $W$ or fully spilled.
 
 We spill according to the next-use distance, once before the instruction for operands and once after the instruction to ensure space for the results. 
 
-At this stage, we do not consider most instruction irregularities, except for calls. Calls are treated with a number of implicit results equivalent to the number of volatile registers. 
+At this stage, we do not consider most instruction irregularities, except for calls. Calls are treated with a number of implicit results equivalent to the number of volatile registers. In addition, we mark values that are in $W$ after a call and are used in the next $5$ instructions, as these values are good candidates for non-volatile registers.
 All other irregularities are ignored (and are not known to TPDE at this stage).
 
 
@@ -231,7 +297,7 @@ All other irregularities are ignored (and are not known to TPDE at this stage).
 \end{algorithmic}
 \end{minipage}
 
-\caption{Simplified \texttt{MIN} algorithm for a single basic block. }
+\caption{Simplified \texttt{MIN} algorithm for a single basic block~\cite{hack-spilling}. }
 
 \end{algorithm}
 
@@ -241,3 +307,53 @@ For loop headers, we initialize $W$ to only contain variables used in the loop a
 This ideally ensures that the loop can be executed without spilling. 
 Since our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
 
+\section{Register allocation during Codegeneration}
+
+After the previous passes, we are now at the codegeneration stage of TPDE. Therefore any generated instruction cannot be undone, as they are immediately encoded. 
+This stage focuses on avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including phi nodes.
+
+\subsection{Register choice in a Basic Block}
+\subsubsection{Register choice for unconstrained instructions}
+When a value requests a register, we choose in round-robin fashion from the currently unused registers. We prefer volatile registers, unless the value has been previously marked as a non-volatile candidate (see section~\ref{sec:spill_calculation}).
+The chosen register is then noted as the preffered register for this value. Future reloads of this value will try to use the same register if possible, in order to minimize connecting instructions.
+
+Should there be no free register, we need to spill a value. For this we choose the values that are marked as spilled and choose the one with the largest next-use as such values are spilled immediately after definition this does not generate a spill instruction. If there are no such values, we choose the value with the largest next-use.
+
+\subsubsection{Register choice for constrained instructions}
+
+For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a Scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby avoiding an additional spill. If no register is available, we spill the occupying value, since the previously used spill information is not correct around constrained instructions. 
+
+As requests are processed value by value it is possible, that we miss shuffling opportunities between operands.
+For example assume we have values $x$ and $y$ in registers $rax$ and $rdx$ respectively and all other registers are occupied.
+Now if we want to compile a 64-bit division, the compilation function will request $rdx$ and zero it, which requires spilling $y$. Then $y$ need to be in register $rax$ which will spill $x$. And finally $x$ needs an arbitrary register. 
+This is not optimal as we could have used the final register of $x$ as a temporary to swap x and y, only requiring  one spill, which can also be a arbitrary register and therefore more likely to be marked spilled. 
+
+Although this scenario is possible, it is unlikely to occur as long as most instruction are unconstrained. However, for calls such behavior would be problematic therefore we handle call seperately.
+
+%/\begin{align*}
+%\text{rax} \gets x\\
+%\text{rdx} \gets y \\
+%\dots\\
+%\text{udiv(x,y):}\\
+%\text{spill(y)}\\ \text{rdx} \gets \text{scratch} \\
+%\text{spill(x)}\\ \text{rax} \gets \text{reload(y)} \\
+%\text{r8} \gets \text{x} \\
+%\text{encode_udiv(r8)}\\
+%\end{align*}
+
+\subsubsection{Register allocation for calls}
+
+For calls specifically all its operands need to be in a specific location either on the stack or in a specific register. To handle this better, we collect all operands and their target locations, then spill all volatile registers. 
+Then in a second pass we first move all stack operands to their location, which frees up more registers. Then finally we use a parallel move algorithm~\cite{par-move}, which uses the free registers as temporaries in order to swap values between registers and resolve any dependency cycles between them.
+
+\subsection{Connecting Basic Blocks}
+
+At the end of each block we need to connect them with their successors. If the successor has only one predecessor, we can simply use the current register without any additional moves. For blocks with multiple predecessors, the register state of the first generated predecessor is used. If the current register state does not match the target state, we generate a parallel move to resolve the differences. We ensure this is possible by requiring one register per bank to be free in branch regions. This allows for the use of parallel moves to resolve any register conflicts. We try to minimize the amount of connecting moves necessary using the preferred register mechanism.
+
+If a successor contains phi nodes, we try to allocate them to a register and move their incoming value to this register, this is done in the same parallel move as before. This can also handle all cycles or swaps using phi nodes as long as they are in registers. If the phi nodes are not in registers and conflict, we try to use the free register as an intermediate, otherwise we need to allocate an additional stack slot to resolve the conflict. 
+
+As we cannot undo any action taken during this connecting step we currently require all jumps to be split, although it would be possible to precalculate whether any moves, spills or reloads are necessary and then deciding whether a jump must be split.
+
+\subsubsection{Loop headers}
+
+As previously described, we consider loop headers as especially important and have therefore precalculated a register state during the spilling phase. This is used when connecting to a loop header. All non-loop values are spilled, and the missing values are reloaded into registers, to ensure the register state matches the precalculated one.

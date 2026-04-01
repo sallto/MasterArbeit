@@ -1,0 +1,834 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{anyt/global//global/global/global}
+    \entry{hack-spilling}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=31ad0d26cbb80a75b17adaa4d49bcb40}{%
+           family={Braun},
+           familyi={B\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=85e9d96d1ffe41db3be597255f5e060a}{%
+           family={Hack},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=775d2bba69321780e9bbbaa86729733e}{%
+           family={Moor},
+           familyi={M\bibinitperiod},
+           given={Oege},
+           giveni={O\bibinitperiod},
+           prefix={de},
+           prefixi={d\bibinitperiod}}}%
+        {{hash=6ba0dfb36f99d5baec0098ca67f7c55b}{%
+           family={Schwartzbach},
+           familyi={S\bibinitperiod},
+           given={Michael\bibnamedelima I.},
+           giveni={M\bibinitperiod\bibinitdelim I\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{fullhash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{fullhashraw}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{bibnamehash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{authorbibnamehash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{authornamehash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{authorfullhash}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{authorfullhashraw}{080d1542f3abdcca5325f9c07d3250e4}
+      \strng{editorbibnamehash}{83e42e677e909c50dea4f52704f5a169}
+      \strng{editornamehash}{83e42e677e909c50dea4f52704f5a169}
+      \strng{editorfullhash}{83e42e677e909c50dea4f52704f5a169}
+      \strng{editorfullhashraw}{83e42e677e909c50dea4f52704f5a169}
+      \field{labelalpha}{BH09}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Register allocation decides which parts of a variable's live range are held in registers and which in memory. The compiler inserts spill code to move the values of variables between registers and memory. Since fetching data from memory is much slower than reading directly from a register, careful spill code insertion is critical for the performance of the compiled program.}
+      \field{booktitle}{Compiler Construction}
+      \field{isbn}{978-3-642-00722-4}
+      \field{title}{Register Spilling and Live-Range Splitting for SSA-Form Programs}
+      \field{year}{2009}
+      \field{pages}{174\bibrangedash 189}
+      \range{pages}{16}
+    \endentry
+    \entry{fast-liveness}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=80252c92f85ed14d5f16b4ffde6ec6b2}{%
+           family={Boissinot},
+           familyi={B\bibinitperiod},
+           given={Benoit},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=910dde154ddcc194e7900b7481335478}{%
+           family={Brandner},
+           familyi={B\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3719c8cb91ab93cdf0fef477c9cbdbe1}{%
+           family={Darte},
+           familyi={D\bibinitperiod},
+           given={Alain},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1fab798964bf40373c583eb1e36cceb2}{%
+           family={Dinechin},
+           familyi={D\bibinitperiod},
+           given={Benoît\bibnamedelima Dupont},
+           giveni={B\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0,
+           prefix={de},
+           prefixi={d\bibinitperiod},
+           prefixun=0}}%
+        {{un=0,uniquepart=base,hash=fa2eb76ed24e8bf7910110265cfbc7b7}{%
+           family={Rastello},
+           familyi={R\bibinitperiod},
+           given={Fabrice},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=f54dd89dfae376ce30704e5a2ea3b4b1}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Hongseok},
+           giveni={H\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{7aa1554469e6e5ac55e49b36433c40d6}
+      \strng{fullhash}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{fullhashraw}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{bibnamehash}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{authorbibnamehash}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{authornamehash}{7aa1554469e6e5ac55e49b36433c40d6}
+      \strng{authorfullhash}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{authorfullhashraw}{5bb117bc1c54e8697674b2775b74459b}
+      \strng{editorbibnamehash}{f54dd89dfae376ce30704e5a2ea3b4b1}
+      \strng{editornamehash}{f54dd89dfae376ce30704e5a2ea3b4b1}
+      \strng{editorfullhash}{f54dd89dfae376ce30704e5a2ea3b4b1}
+      \strng{editorfullhashraw}{f54dd89dfae376ce30704e5a2ea3b4b1}
+      \field{labelalpha}{Boi+11}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We revisit the problem of computing liveness sets (the sets of variables live-in and live-out of basic blocks) for programs in strict static single assignment (SSA). In strict SSA, aka SSA with dominance property, the definition of a variable always dominates all its uses. We exploit this property and the concept of loop-nesting forest to design a fast two-phases data-flow algorithm: a first pass traverses the control-flow graph (CFG), propagating liveness information backwards, a second pass traverses a loop-nesting forest, updating liveness sets within loops. The algorithm is proved correct even for irreducible CFGs. We analyze its algorithmic complexity and evaluate its efficiency on SPECINT 2000. Compared to traditional iterative data-flow approaches, which perform updates until a fixed point is reached, our algorithm is 2 times faster on average. Other approaches are possible that propagate from uses to definitions, one variable at a time, instead of unioning sets as in data-flow analysis. Our algorithm is 1.43 times faster than the fastest alternative on average, when sets are represented as bitsets and for optimized programs, which have non-trivial live-ranges and a larger number of variables.}
+      \field{booktitle}{Programming Languages and Systems}
+      \field{isbn}{978-3-642-25318-8}
+      \field{title}{A Non-iterative Data-Flow Algorithm for Computing Liveness Sets in Strict SSA Programs}
+      \field{year}{2011}
+      \field{pages}{137\bibrangedash 154}
+      \range{pages}{18}
+    \endentry
+    \entry{Cooper06}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=7b8241f52fd1fd62536f4cf2911d76e5}{%
+           family={Cooper},
+           familyi={C\bibinitperiod},
+           given={K.D.},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=8dca092d06243199177c7cdf4d13aab1}{%
+           family={Dasgupta},
+           familyi={D\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{fullhash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{fullhashraw}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{bibnamehash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{authorbibnamehash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{authornamehash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{authorfullhash}{29c9f1b3a419150c4751a536379b0cd2}
+      \strng{authorfullhashraw}{29c9f1b3a419150c4751a536379b0cd2}
+      \field{labelalpha}{CD06}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{International Symposium on Code Generation and Optimization (CGO'06)}
+      \field{title}{Tailoring graph-coloring register allocation for runtime compilation}
+      \field{year}{2006}
+      \field{pages}{11 pp.\bibrangedash 49}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1109/CGO.2006.35
+      \endverb
+      \keyw{Optimizing compilers;Runtime environment;Design optimization;Java;Virtual machining;Algorithm design and analysis;Profitability;Program processors;Virtual manufacturing;Costs}
+    \endentry
+    \entry{chaitin1981}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=86939113258d9182a01630dba8228c5e}{%
+           family={Chaitin},
+           familyi={C\bibinitperiod},
+           given={Gregory\bibnamedelima J.},
+           giveni={G\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f7a560e8038e413a6b2373dd8aab90f2}{%
+           family={Auslander},
+           familyi={A\bibinitperiod},
+           given={Marc\bibnamedelima A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab3c607a5ddbade7706ded6902cfcbeb}{%
+           family={Chandra},
+           familyi={C\bibinitperiod},
+           given={Ashok\bibnamedelima K.},
+           giveni={A\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7e6f41b987a6ec2b9b01a3d33cdd2ddb}{%
+           family={Cocke},
+           familyi={C\bibinitperiod},
+           given={John},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d6e797931824a1dab33cf65c4725ec9f}{%
+           family={Hopkins},
+           familyi={H\bibinitperiod},
+           given={Martin\bibnamedelima E.},
+           giveni={M\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b1167d18b96c193a9c6554d5831c1e5c}{%
+           family={Markstein},
+           familyi={M\bibinitperiod},
+           given={Peter\bibnamedelima W.},
+           giveni={P\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{d6fcf173e5e6ae758b7692fdfc709ef6}
+      \strng{fullhash}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \strng{fullhashraw}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \strng{bibnamehash}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \strng{authorbibnamehash}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \strng{authornamehash}{d6fcf173e5e6ae758b7692fdfc709ef6}
+      \strng{authorfullhash}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \strng{authorfullhashraw}{fe7e73fc783df37dd6c11e7dd37fceec}
+      \field{labelalpha}{Cha+81}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Register allocation may be viewed as a graph coloring problem. Each node in the graph stands for a computed quantity that resides in a machine register, and two nodes are connected by an edge if the quantities interfere with each other, that is, if they are simultaneously live at some point in the object program. This approach, though mentioned in the literature, was never implemented before. Preliminary results of an experimental implementation in a PL/I optimizing compiler suggest that global register allocation approaching that of hand-coded assembly language may be attainable.}
+      \field{issn}{0096-0551}
+      \field{journaltitle}{Computer Languages}
+      \field{number}{1}
+      \field{title}{Register allocation via coloring}
+      \field{volume}{6}
+      \field{year}{1981}
+      \field{pages}{47\bibrangedash 57}
+      \range{pages}{11}
+      \verb{doi}
+      \verb https://doi.org/10.1016/0096-0551(81)90048-5
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/0096055181900485
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/0096055181900485
+      \endverb
+      \keyw{Register allocation,Optimizing compilers,Graph coloring}
+    \endentry
+    \entry{treescan}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=5beaf9a5a2a8552f11f8d3a65189e2cd}{%
+           family={Colombet},
+           familyi={C\bibinitperiod},
+           given={Quentin},
+           giveni={Q\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=80252c92f85ed14d5f16b4ffde6ec6b2}{%
+           family={Boissinot},
+           familyi={B\bibinitperiod},
+           given={Benoit},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=63ea454245d0a241154e441cacaf1558}{%
+           family={Brisk},
+           familyi={B\bibinitperiod},
+           given={Philip},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=85e9d96d1ffe41db3be597255f5e060a}{%
+           family={Hack},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fa2eb76ed24e8bf7910110265cfbc7b7}{%
+           family={Rastello},
+           familyi={R\bibinitperiod},
+           given={Fabrice},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Taipei, Taiwan}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{6c2210b0540a23af729b6bb913cebda4}
+      \strng{fullhash}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \strng{fullhashraw}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \strng{bibnamehash}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \strng{authorbibnamehash}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \strng{authornamehash}{6c2210b0540a23af729b6bb913cebda4}
+      \strng{authorfullhash}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \strng{authorfullhashraw}{4d6bf9f6e09bdb35570fcc523eff1139}
+      \field{labelalpha}{Col+11}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Graph coloring and linear scan are two appealing techniques for register allocation as the underlying formalism are extremely clean and simple. This paper advocates a decoupled approach that first lowers the register pressure by spilling variables, and then performs live ranges splitting/coalescing/coloring in a separate phase; this enables the design of simpler, cleaner, and more efficient register allocators.This paper gives a new and more general approach to deal with register constraints. This approach called repairing does not require pre live range splitting and does not introduce additional spill code. It ignores register constraints during coloring/coalescing, and repairs violated constraints afterwards.We applied this method to both graph based and scan based allocators into a decoupled approach. Here, the Iterated Register Coalescer (IRC) and a scan algorithm that uses Static Single Assignment (SSA) properties, the treescan. Moreover, this paper provides a survey on existing and new techniques of bias coloring during scan approaches.Our experimental evaluation shows for the graph based approach, that we reduced the number of vertices (edges) in the interference graph by 26\% (33\%) without compromising the quality of the generated code. The treescan algorithm improved the compile time of the allocation process by 6.97x over IRC while providing comparable results for the quality of the generated code.}
+      \field{booktitle}{Proceedings of the 14th International Conference on Compilers, Architectures and Synthesis for Embedded Systems}
+      \field{isbn}{9781450307130}
+      \field{series}{CASES '11}
+      \field{title}{Graph-coloring and treescan register allocation using repairing}
+      \field{year}{2011}
+      \field{pages}{45\bibrangedash 54}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1145/2038698.2038708
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/2038698.2038708
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/2038698.2038708
+      \endverb
+      \keyw{coalescing,coloring,fast register allocation,register constraints,ssa form}
+    \endentry
+    \entry{trace-ra}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=5141fca60ef00248087f2f349c1f4a6c}{%
+           family={Eisl},
+           familyi={E\bibinitperiod},
+           given={Josef},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Pittsburgh, PA, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{fullhash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{fullhashraw}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{bibnamehash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{authorbibnamehash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{authornamehash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{authorfullhash}{5141fca60ef00248087f2f349c1f4a6c}
+      \strng{authorfullhashraw}{5141fca60ef00248087f2f349c1f4a6c}
+      \field{labelalpha}{Eis15}
+      \field{sortinit}{E}
+      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper proposes the idea of Trace Register Allocation, a register allocation approach that is tailored for just-in-time (JIT) compilation in the context of virtual machines with run-time feedback. The basic idea is to offload costly operations such as spilling and splitting to less frequently executed branches and to focus on efficient registers allocation for the hot parts of a program. This is done by performing register allocation on traces instead of on the program as a whole. We believe that the basic approach is compatible to Linear Scan, the predominant register allocation algorithm for just-in-time compilation, in both code quality and allocation time, while our design leads to a simpler and more extensible solution. This extensibility allows us to add further enhancements in order to optimize the allocation based on the run-time profile of the application and thus to outperform current Linear Scan implementations.}
+      \field{booktitle}{Companion Proceedings of the 2015 ACM SIGPLAN International Conference on Systems, Programming, Languages and Applications: Software for Humanity}
+      \field{isbn}{9781450337229}
+      \field{series}{SPLASH Companion 2015}
+      \field{title}{Trace register allocation}
+      \field{year}{2015}
+      \field{pages}{21\bibrangedash 23}
+      \range{pages}{3}
+      \verb{doi}
+      \verb 10.1145/2814189.2814199
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/2814189.2814199
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/2814189.2814199
+      \endverb
+      \keyw{virtual machines,trace compilation,linear scan,just-in-time compilation,Register allocation}
+    \endentry
+    \entry{ilp-regalloc}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=8bce792f092af9e10653d98dc484c700}{%
+           family={Fu},
+           familyi={F\bibinitperiod},
+           given={Changqing},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=41dd6ecfda10dcdd9876e301289b4e74}{%
+           family={Wilken},
+           familyi={W\bibinitperiod},
+           given={K.},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{fullhash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{fullhashraw}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{bibnamehash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{authorbibnamehash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{authornamehash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{authorfullhash}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \strng{authorfullhashraw}{2d7f257ec44eb9d0e057c5520756d9fc}
+      \field{labelalpha}{FW02}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{35th Annual IEEE/ACM International Symposium on Microarchitecture, 2002. (MICRO-35). Proceedings.}
+      \field{title}{A faster optimal register allocator}
+      \field{year}{2002}
+      \field{pages}{245\bibrangedash 256}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1109/MICRO.2002.1176254
+      \endverb
+      \keyw{Registers;Embedded system;Computer architecture;Optimizing compilers;Energy consumption;Program processors;Degradation;Integer linear programming;Microarchitecture}
+    \endentry
+    \entry{graph-coloring-np-complete}{book}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=3d981c215c9c575d31bcca98c6d6c69d}{%
+           family={Garey},
+           familyi={G\bibinitperiod},
+           given={Michael\bibnamedelima R.},
+           giveni={M\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=8f805225d8e433c29a18a566d1f6acc6}{%
+           family={Johnson},
+           familyi={J\bibinitperiod},
+           given={David\bibnamedelima S.},
+           giveni={D\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {USA}%
+      }
+      \list{publisher}{1}{%
+        {W. H. Freeman \& Co.}%
+      }
+      \strng{namehash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{fullhash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{fullhashraw}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{bibnamehash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{authorbibnamehash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{authornamehash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{authorfullhash}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \strng{authorfullhashraw}{d186cd4f1f5ca75183b09d5af68f9e7c}
+      \field{labelalpha}{GJ90}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{0716710455}
+      \field{title}{Computers and Intractability; A Guide to the Theory of NP-Completeness}
+      \field{year}{1990}
+    \endentry
+    \entry{hack-thesis}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=85e9d96d1ffe41db3be597255f5e060a}{%
+           family={Hack},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{language}{1}{%
+        {english}%
+      }
+      \list{publisher}{1}{%
+        {Universitätsverlag Karlsruhe}%
+      }
+      \strng{namehash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{fullhash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{fullhashraw}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{bibnamehash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{authorbibnamehash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{authornamehash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{authorfullhash}{85e9d96d1ffe41db3be597255f5e060a}
+      \strng{authorfullhashraw}{85e9d96d1ffe41db3be597255f5e060a}
+      \field{labelalpha}{Hac07}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This book investigates register allocation for programs in static single-assignment form.{\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}Its main result is that the interference graphs of SSA-form programs are chordal.{\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}This gives the compiler precise knowledge over the register demand and allows for separating spilling, assignment and coalescing. {\convertToLaTeXASCII{U+D}}{\convertToLaTeXASCII{U+A}}For each of these phases, we present methods specially tailored to the SSA setting and provide a first evaluation.}
+      \field{isbn}{978-3-86644-180-4}
+      \field{pagetotal}{123}
+      \field{title}{Register allocation for programs in SSA Form}
+      \field{type}{phdthesis}
+      \field{year}{2007}
+      \verb{doi}
+      \verb 10.5445/KSP/1000007166
+      \endverb
+      \keyw{Compiler,Übersetzerbau,Register <Informatik>,Codeoptimierung,Codegenerierung,Graphfärbung,Registerzuteilung,SSA Form,Compiler,Register Allocation,Codegeneration,SSA Form,Graph Coloring}
+    \endentry
+    \entry{hack-chordal}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=85e9d96d1ffe41db3be597255f5e060a}{%
+           family={Hack},
+           familyi={H\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b63bbfabf889de67d986962ae71dbcd7}{%
+           family={Grund},
+           familyi={G\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=97b8779c08da200ee2eb194bdc10ae4f}{%
+           family={Goos},
+           familyi={G\bibinitperiod},
+           given={Gerhard},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{2}{}{%
+        {{hash=131ecd99af3f1a52210ec52d05e89e14}{%
+           family={Mycroft},
+           familyi={M\bibinitperiod},
+           given={Alan},
+           giveni={A\bibinitperiod}}}%
+        {{hash=5e1cda0c07dec7bd29209963590efad4}{%
+           family={Zeller},
+           familyi={Z\bibinitperiod},
+           given={Andreas},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer Berlin Heidelberg}%
+      }
+      \strng{namehash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{fullhash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{fullhashraw}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{bibnamehash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{authorbibnamehash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{authornamehash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{authorfullhash}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{authorfullhashraw}{81df1ff89b2a0f35a0ff72f7919ab3fd}
+      \strng{editorbibnamehash}{a43d20e65d9c707255140cfc30ba6e7b}
+      \strng{editornamehash}{a43d20e65d9c707255140cfc30ba6e7b}
+      \strng{editorfullhash}{a43d20e65d9c707255140cfc30ba6e7b}
+      \strng{editorfullhashraw}{a43d20e65d9c707255140cfc30ba6e7b}
+      \field{labelalpha}{HGG06}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{As register allocation is one of the most important phases in optimizing compilers, much work has been done to improve its quality and speed. We present a novel register allocation architecture for programs in SSA-form which simplifies register allocation significantly. We investigate certain properties of SSA-programs and their interference graphs, showing that they belong to the class of chordal graphs. This leads to a quadratic-time optimal coloring algorithm and allows for decoupling the tasks of coloring, spilling and coalescing completely. After presenting heuristic methods for spilling and coalescing, we compare our coalescing heuristic to an optimal method based on integer linear programming.}
+      \field{booktitle}{Compiler Construction}
+      \field{isbn}{978-3-540-33051-6}
+      \field{title}{Register Allocation for Programs in SSA-Form}
+      \field{year}{2006}
+      \field{pages}{247\bibrangedash 262}
+      \range{pages}{16}
+    \endentry
+    \entry{linear-scan-og}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=339e6859839335a19c8154848b76b5a8}{%
+           family={Poletto},
+           familyi={P\bibinitperiod},
+           given={Massimiliano},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d76a03f639d0f198710bebcbc03463a8}{%
+           family={Engler},
+           familyi={E\bibinitperiod},
+           given={Dawson\bibnamedelima R.},
+           giveni={D\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e5e5e71c98f9baacd735af99a12dc3b1}{%
+           family={Kaashoek},
+           familyi={K\bibinitperiod},
+           given={M.\bibnamedelimi Frans},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Las Vegas, Nevada, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{fullhash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{fullhashraw}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{bibnamehash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{authorbibnamehash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{authornamehash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{authorfullhash}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \strng{authorfullhashraw}{9f0a6bbad89c8483d82b4d92b71c6aca}
+      \field{labelalpha}{PEK97}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{tcc is a compiler that provides efficient and high-level access to dynamic code generation. It implements the 'C ("Tick-C") programming language, an extension of ANSI C that supports dynamic code generation [15]. 'C gives power and flexibility in specifying dynamically generated code: whereas most other systems use annotations to denote run-time invariants. 'C allows the programmer to specify and compose arbitrary expressions and statements at run time. This degree of control is needed to efficiently implement some of the most important applications of dynamic code generation, such as "just in time" compilers [17] and efficient simulators [10, 48, 46].The paper focuses on the techniques that allow tcc to provide 'C's flexibility and expressiveness without sacrificing run-time code generation efficiency. These techniques include fast register allocation, efficient creation and composition of dynamic code specifications, and link-time analysis to reduce the size of dynamic code generators. tcc also implements two different dynamic code generation strategies, designed to address the tradeoff of dynamic compilation speed versus generated code quality. To characterize the effects of dynamic compilation, we present performance measurements for eleven programs compiled using tcc. On these applications, we measured performance improvements of up to one order of magnitude.To encourage further experimentation and use of dynamic code generation, we are making the tcc compiler available in the public domain. This is, to our knowledge, the first high-level dynamic compilation system to be made available.}
+      \field{booktitle}{Proceedings of the ACM SIGPLAN 1997 Conference on Programming Language Design and Implementation}
+      \field{isbn}{0897919076}
+      \field{series}{PLDI '97}
+      \field{title}{tcc: a system for fast, flexible, and high-level dynamic code generation}
+      \field{year}{1997}
+      \field{pages}{109\bibrangedash 121}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1145/258915.258926
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/258915.258926
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/258915.258926
+      \endverb
+    \endentry
+    \entry{gc-coalescing}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=01475469e7e03f874048af722ce5fe30}{%
+           family={Park},
+           familyi={P\bibinitperiod},
+           given={Jinpyo},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2038551cb12517dc0196a2826c463c89}{%
+           family={Moon},
+           familyi={M\bibinitperiod},
+           given={Soo-Mook},
+           giveni={S\bibinithyphendelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {New York, NY, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{9b43865556e301abce01bce1930394ef}
+      \strng{fullhash}{9b43865556e301abce01bce1930394ef}
+      \strng{fullhashraw}{9b43865556e301abce01bce1930394ef}
+      \strng{bibnamehash}{9b43865556e301abce01bce1930394ef}
+      \strng{authorbibnamehash}{9b43865556e301abce01bce1930394ef}
+      \strng{authornamehash}{9b43865556e301abce01bce1930394ef}
+      \strng{authorfullhash}{9b43865556e301abce01bce1930394ef}
+      \strng{authorfullhashraw}{9b43865556e301abce01bce1930394ef}
+      \field{labelalpha}{PM04}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Graph-coloring register allocators eliminate copies by coalescing the source and target nodes of a copy if they do not interfere in the interference graph. Coalescing, however, can be harmful to the colorability of the graph because it tends to yield a graph with nodes of higher degrees. Unlike aggressive coalescing, which coalesces any pair of noninterfering copy-related nodes, conservative coalescing or iterated coalescing perform safe coalescing that preserves the colorability. Unfortunately, these heuristics give up coalescing too early, losing many opportunities for coalescing that would turn out to be safe. Moreover, they ignore the fact that coalescing may even improve the colorability of the graph by reducing the degree of neighbor nodes that are interfering with both the source and target nodes being coalesced. This article proposes a new heuristic called optimistic coalescing which optimistically performs aggressive coalescing, thus exploiting the positive impact of coalescing aggressively, but when a coalesced node is to be spilled, it is split back into separate nodes. Since there is a better chance of coloring one of those splits, we can reduce the overall spill amount.}
+      \field{issn}{0164-0925}
+      \field{journaltitle}{ACM Trans. Program. Lang. Syst.}
+      \field{month}{7}
+      \field{number}{4}
+      \field{title}{Optimistic register coalescing}
+      \field{volume}{26}
+      \field{year}{2004}
+      \field{pages}{735\bibrangedash 765}
+      \range{pages}{31}
+      \verb{doi}
+      \verb 10.1145/1011508.1011512
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/1011508.1011512
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/1011508.1011512
+      \endverb
+      \keyw{Copy coalescing,graph coloring,noncopy coalescing,register allocation}
+    \endentry
+    \entry{tpde}{misc}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=503534cfe3f0c3935615ea4335d2f84d}{%
+           family={Schwarz},
+           familyi={S\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e3dbd860a3ec3764eb27d10169fdabb0}{%
+           family={Kamm},
+           familyi={K\bibinitperiod},
+           given={Tobias},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1ae28d9830e13e46fdba0101acf2ab83}{%
+           family={Engelke},
+           familyi={E\bibinitperiod},
+           given={Alexis},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{fullhash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{fullhashraw}{c001ad75992d49b5e47f4b047a875242}
+      \strng{bibnamehash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{authorbibnamehash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{authornamehash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{authorfullhash}{c001ad75992d49b5e47f4b047a875242}
+      \strng{authorfullhashraw}{c001ad75992d49b5e47f4b047a875242}
+      \field{labelalpha}{SKE25}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.PL}
+      \field{eprinttype}{arXiv}
+      \field{title}{TPDE: A Fast Adaptable Compiler Back-End Framework}
+      \field{year}{2025}
+      \verb{eprint}
+      \verb 2505.22610
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2505.22610
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2505.22610
+      \endverb
+    \endentry
+    \entry{Wimmer2010}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=8c2db0ca51b05075294396c98cddfdbb}{%
+           family={Wimmer},
+           familyi={W\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a88c72c47d99f6e8c7043e2dcc01d87f}{%
+           family={Franz},
+           familyi={F\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Toronto, Ontario, Canada}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{fullhash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{fullhashraw}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{bibnamehash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{authorbibnamehash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{authornamehash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{authorfullhash}{2fe062bb1cd982265db54d4546d28bd7}
+      \strng{authorfullhashraw}{2fe062bb1cd982265db54d4546d28bd7}
+      \field{labelalpha}{WF10}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The linear scan algorithm for register allocation provides a good register assignment with a low compilation overhead and is thus frequently used for just-in-time compilers. Although most of these compilers use static single assignment (SSA) form, the algorithm has not yet been applied on SSA form, i.e., SSA form is usually deconstructed before register allocation. However, the structural properties of SSA form can be used to simplify the algorithm.With only one definition per variable, lifetime intervals (the main data structure) can be constructed without data flow analysis. During allocation, some tests of interval intersection can be skipped because SSA form guarantees non-intersection. Finally, deconstruction of SSA form after register allocation can be integrated into the resolution phase of the register allocator without much additional code.We modified the linear scan register allocator of the Java HotSpot client compiler so that it operates on SSA form. The evaluation shows that our simpler and faster version generates equally good or slightly better machine code.}
+      \field{booktitle}{Proceedings of the 8th Annual IEEE/ACM International Symposium on Code Generation and Optimization}
+      \field{isbn}{9781605586359}
+      \field{series}{CGO '10}
+      \field{title}{Linear scan register allocation on SSA form}
+      \field{year}{2010}
+      \field{pages}{170\bibrangedash 179}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1145/1772954.1772979
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/1772954.1772979
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/1772954.1772979
+      \endverb
+      \keyw{register allocation,linear scan,lifetime analysis,just-in-time compilation,SSA form deconstruction,SSA form,Java}
+    \endentry
+    \entry{wimmer-06-linear-scan}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=8c2db0ca51b05075294396c98cddfdbb}{%
+           family={Wimmer},
+           familyi={W\bibinitperiod},
+           given={Christian},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f5f5a59a43a5502876023c110d781762}{%
+           family={Mössenböck},
+           familyi={M\bibinitperiod},
+           given={Hanspeter},
+           giveni={H\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Chicago, IL, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{90f91fcfa08968a84124f49383883d71}
+      \strng{fullhash}{90f91fcfa08968a84124f49383883d71}
+      \strng{fullhashraw}{90f91fcfa08968a84124f49383883d71}
+      \strng{bibnamehash}{90f91fcfa08968a84124f49383883d71}
+      \strng{authorbibnamehash}{90f91fcfa08968a84124f49383883d71}
+      \strng{authornamehash}{90f91fcfa08968a84124f49383883d71}
+      \strng{authorfullhash}{90f91fcfa08968a84124f49383883d71}
+      \strng{authorfullhashraw}{90f91fcfa08968a84124f49383883d71}
+      \field{labelalpha}{WM05}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We present an optimized implementation of the linear scan register allocation algorithm for Sun Microsystems' Java HotSpot™ client compiler. Linear scan register allocation is especially suitable for just-in-time compilers because it is faster than the common graph-coloring approach and yields results of nearly the same quality.Our allocator improves the basic linear scan algorithm by adding more advanced optimizations: It makes use of lifetime holes, splits intervals if the register pressure is too high, and models register constraints of the target architecture with fixed intervals. Three additional optimizations move split positions out of loops, remove register-to-register moves and eliminate unnecessary spill stores. Interval splitting is based on use positions, which also capture the kind of use and whether an operand is needed in a register or not. This avoids the reservation of a scratch register.Benchmark results prove the efficiency of the linear scan algorithm: While the compilation speed is equal to the old local register allocator that is part of the Sun JDK 5.0, integer benchmarks execute about 15\% faster. Floating-point benchmarks show the high impact of the Intel SSE2 extensions on the speed of numeric Java applications: With the new SSE2 support enabled, SPECjvm98 executes 25\% faster compared with the current Sun JDK 5.0.}
+      \field{booktitle}{Proceedings of the 1st ACM/USENIX International Conference on Virtual Execution Environments}
+      \field{isbn}{1595930477}
+      \field{series}{VEE '05}
+      \field{title}{Optimized interval splitting in a linear scan register allocator}
+      \field{year}{2005}
+      \field{pages}{132\bibrangedash 141}
+      \range{pages}{10}
+      \verb{doi}
+      \verb 10.1145/1064979.1064998
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/1064979.1064998
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/1064979.1064998
+      \endverb
+      \keyw{register allocation,optimization,linear scan,just-in-time compilation,java,graph-coloring,compilers}
+    \endentry
+  \enddatalist
+  \missing{llvm}
+\endrefsection
+\endinput
+
