@@ -1,5 +1,6 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
+\pgfplotstableread[col sep=comma]{plots/output/spec_runtime_speedup.csv}\specruntimespeedup
 
 \chapter{Evaluation}\label{chapter:evaluation}
 \section{Correctness}
@@ -16,4 +17,78 @@ As benchmark programs, we use the SPEC CPU2017 integer benchmarks on x86-64 and 
 Our x86-64 machine is an Amd Ryzen 5 5600X with 32 GiB of RAM running Linux \todo{version}; Our
 AArch64 machine is an Apple M1 with 16 GiB of memory, using only the four performance cores,
 running Asahi Linux \todo{version}. We use Clang/LLVM version 20.1.8.
+
+\subsection{Optimized IR}
+
+\begin{figure}[t]
+    \centering
+      \begin{tikzpicture}
+    \begin{axis}[
+      ybar=0pt,
+      ymax=1.4,
+      ymin=0,
+      ymajorgrids=true,
+      ytick distance=.2,
+      bar width=6pt,
+      symbolic x coords = {
+        600.perl,
+        602.gcc,
+        605.mcf,
+        620.omnetpp,
+        623.xalanc,
+        625.x264,
+        631.deepsjeng,
+        641.leela,
+        648.exchange2,
+        657.xz,
+        geomean
+      },
+      enlarge x limits=0.05,
+      xtick=data,
+      xtick pos=bottom,
+      cycle list={%
+        TLpear!30!black,fill=TLpear,mark=none,postaction={pattern=crosshatch dots}\\%
+        TLorange!30!black,fill=TLorange,mark=none\\%
+        TLlightcyan!30!black,fill=TLlightcyan,mark=none,postaction={pattern=crosshatch dots}\\%
+        TLlightblue!30!black,fill=TLlightblue,mark=none\\%
+        TLpink!30!black,fill=TLpink,mark=none\\%
+        TLlightyellow!30!black,fill=TLlightyellow,mark=none\\%
+        TLlightcyan!30!black,fill=TLlightcyan,mark=none\\%
+        TLolive!30!black,fill=TLolive,mark=none\\%
+        TLmint!30!black,fill=TLmint,mark=none\\%
+        TLpear!30!black,fill=TLpear,mark=none\\%
+        TLpalegray!30!black,fill=TLpalegray,mark=none\\%
+        TLlightblue!30!black,fill=TLlightblue,mark=none\\%
+      },
+      xticklabel style={rotate=30,anchor=east,align=center},
+      yticklabel style={font=\Large},
+     width=12cm,
+      height=5.5cm,
+      ]
+\addplot table[x=benchmark,y expr=\thisrow{o1-x86_64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-tpde-old},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-tpde},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      %\addplot table[x=benchmark,y expr=\thisrow{o1-aarch64-clang}/\thisrow{o1ir-aarch64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      %\addplot table[x=benchmark,y expr=\thisrow{o1-aarch64-clang}/\thisrow{o1ir-aarch64-tpde},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+
+      \coordinate (A) at (axis cs:geomean,1);
+      \coordinate (O1) at (rel axis cs:0,0);
+      \coordinate (O2) at (rel axis cs:1,0);
+
+      \draw [black,sharp plot,dashed] (A -| O1) -- (A -| O2);
+
+      %\legend{
+      %  LLVM -O0 x86-64,
+      %  TPDE x86-64,
+      %  LLVM -O0 AArch64,
+      %  TPDE AArch64
+      %}
+
+    \end{axis}
+  \end{tikzpicture}
+    \caption{SPEC CPU2017 integer runtime speedup relative to clang-O1. Values are derived from the raw `res-spec-raw-rt` data. Missing measurements are omitted. On AArch64, the available clang runtime file is reused as the comparison baseline because no separate clang-O1 runtime file is present in the data.}
+    \label{fig:spec_runtime_speedup}
+\end{figure}
+
 
