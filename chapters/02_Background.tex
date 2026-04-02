@@ -232,7 +232,7 @@ void emit_udiv64(IRInstr inst) {
 
 Instruction compilers can allocate more or less registers than is suggested by the number of their operands and results. As TPDE is unaware of the true semantics of the instruction, this makes register allocation, which has to operate before code generation, more difficult.
 
-\subsection{Current Register Allocation in TPDE}
+\subsection{Register Allocation in TPDE}
 
 Whenever a register is requested by an instruction compiler, the framework will try to use the existing register if the requested part currently is in one, otherwise it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining lifetime of the spilled value. For requests of a specific register, the value contained in that register will be spilled.
 

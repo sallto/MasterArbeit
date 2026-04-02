@@ -1,0 +1,12 @@
+benchmark,aarch64-clang,aarch64-tpde,o1-aarch64-clang,o1-aarch64-tpde,o1ir-aarch64-clang,o1ir-aarch64-tpde,o1ir-aarch64-tpde-old,x86_64-clang,x86_64-tpde,o1-x86_64-clang,o1-x86_64-tpde,o1ir-x86_64-clang,o1ir-x86_64-tpde,o1ir-x86_64-tpde-old
+600.perl,nan,nan,nan,nan,1.84940,2.03630,nan,nan,nan,1.00000,2.23796,2.26104,2.23796,1.97860
+602.gcc,nan,nan,nan,nan,1.76860,1.89757,nan,nan,nan,1.00000,2.02324,1.96937,2.02324,1.77016
+605.mcf,nan,nan,nan,nan,1.68653,1.86409,nan,nan,nan,1.00000,1.98545,2.17885,1.98545,1.85048
+620.omnetpp,nan,nan,nan,nan,1.56371,1.78990,nan,nan,nan,1.00000,1.90363,1.87851,1.90363,1.72198
+623.xalanc,nan,nan,nan,nan,1.60120,1.91388,nan,nan,nan,1.00000,1.97486,1.97729,1.97486,1.74758
+625.x264,nan,nan,nan,nan,1.53202,1.68171,nan,nan,nan,1.00000,1.79573,1.89706,1.79573,1.67081
+631.deepsjeng,nan,nan,nan,nan,1.68946,1.82246,nan,nan,nan,1.00000,1.88896,1.99466,1.88896,1.74914
+641.leela,nan,nan,nan,nan,1.63391,1.78353,nan,nan,nan,1.00000,1.91088,2.09177,1.91088,1.78751
+648.exchange2,nan,nan,nan,nan,1.56229,1.55367,nan,nan,nan,1.00000,1.98208,2.14239,1.98208,1.84640
+657.xz,nan,nan,nan,nan,2.03302,2.12282,nan,nan,nan,1.00000,2.24915,2.62809,2.24915,2.23159
+geomean,nan,nan,nan,nan,1.68593,1.84001,nan,nan,nan,1.00000,1.99054,2.09206,1.99054,1.82939
