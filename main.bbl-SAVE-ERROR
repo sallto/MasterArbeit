@@ -673,6 +673,67 @@
       \endverb
       \keyw{Copy coalescing,graph coloring,noncopy coalescing,register allocation}
     \endentry
+    \entry{par-move}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=9e82add23781f48cd9f027ceb9dac33b}{%
+           family={Rideau},
+           familyi={R\bibinitperiod},
+           given={Laurence},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3862813e17e28da6a0c28635505d63c2}{%
+           family={Serpette},
+           familyi={S\bibinitperiod},
+           given={Bernard\bibnamedelima Paul},
+           giveni={B\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=437df325bdf126ab15c356676db2c0d5}{%
+           family={Leroy},
+           familyi={L\bibinitperiod},
+           given={Xavier},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer-Verlag}%
+      }
+      \strng{namehash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{fullhash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{fullhashraw}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{bibnamehash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{authorbibnamehash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{authornamehash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{authorfullhash}{e9e81e5f449bd42ff4450c8927e9f922}
+      \strng{authorfullhashraw}{e9e81e5f449bd42ff4450c8927e9f922}
+      \field{labelalpha}{RSL08}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This article describes the formal verification of a compilation algorithm that transforms parallel moves (parallel assignments between variables) into a semantically-equivalent sequence of elementary moves. Two different specifications of the algorithm are given: an inductive specification and a functional one, each with its correctness proofs. A functional program can then be extracted and integrated in the Compcert verified compiler.}
+      \field{issn}{0168-7433}
+      \field{journaltitle}{J. Autom. Reason.}
+      \field{month}{5}
+      \field{number}{4}
+      \field{title}{Tilting at Windmills with Coq: Formal Verification of a Compilation Algorithm for Parallel Moves}
+      \field{volume}{40}
+      \field{year}{2008}
+      \field{pages}{307\bibrangedash 326}
+      \range{pages}{20}
+      \verb{doi}
+      \verb 10.1007/s10817-007-9096-8
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s10817-007-9096-8
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s10817-007-9096-8
+      \endverb
+      \keyw{The Coq proof assistant,Parallel move,Parallel assignment,Compiler correctness,Compilation}
+    \endentry
     \entry{tpde}{misc}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=503534cfe3f0c3935615ea4335d2f84d}{%
