@@ -2,3 +2,10 @@
 TPDE
 Wimmer
 Colombet
+perf
+bitmapeltior
+gcc
+LICM
+getelementptr
+deduplication
+Sregmatch

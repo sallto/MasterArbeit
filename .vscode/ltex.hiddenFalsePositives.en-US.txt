@@ -1,0 +1,1 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QWe will use 600.perl as an example for some problems resulting from using the optimized IR as a basis for register allocation.\\E$"}

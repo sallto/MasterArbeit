@@ -46,14 +46,20 @@ COLUMNS = [
 FILES = {
     "o1-x86_64-clang": ("res-spec-raw-ct-o1-x86_64", "clang"),
     "o1-x86_64-tpde": ("res-spec-raw-ct-o1-x86_64", "tpde"),
+    "o1-aarch64-clang": ("res-spec-raw-ct-o1-aarch64", "clang"),
     "o1ir-aarch64-clang": ("res-spec-raw-ct-o1ir-aarch64", "clang"),
     "o1ir-aarch64-tpde": ("res-spec-raw-ct-o1ir-aarch64", "tpde"),
+    "o1ir-aarch64-tpde-old": ("res-spec-raw-ct-o1ir-aarch64", "tpde_old"),
     "o1ir-x86_64-clang": ("res-spec-raw-ct-o1ir-x86_64", "clang"),
     "o1ir-x86_64-tpde": ("res-spec-raw-ct-o1ir-x86_64", "tpde"),
     "o1ir-x86_64-tpde-old": ("res-spec-raw-ct-o1ir-x86_64", "tpde_old"),
 }
 
-BASELINE = "o1-x86_64-clang"
+
+BASELINES = {
+    "aarch64": "o1-aarch64-clang",
+    "x86_64": "o1-x86_64-clang",
+}
 
 
 def parse_compile_file(path: Path, tool: str) -> dict[str, float | None]:
@@ -76,18 +82,20 @@ def format_value(value: float | None) -> str:
 
 
 def speedup(
-    compile_times: dict[str, dict[str, float | None]],
+    runtimes: dict[str, dict[str, float | None]],
     benchmark_id: str,
     column: str,
 ) -> float | None:
     if column == "benchmark":
         return None
 
-    baseline_time = compile_times.get(BASELINE, {}).get(benchmark_id)
-    compile_time = compile_times.get(column, {}).get(benchmark_id)
-    if baseline_time is None or compile_time is None:
+    arch = "aarch64" if "aarch64" in column else "x86_64"
+    baseline_key = BASELINES[arch]
+    baseline_runtime = runtimes.get(baseline_key, {}).get(benchmark_id)
+    runtime = runtimes.get(column, {}).get(benchmark_id)
+    if baseline_runtime is None or runtime is None:
         return None
-    return baseline_time / compile_time
+    return baseline_runtime / runtime
 
 
 def geometric_mean(values: list[float | None]) -> float | None:

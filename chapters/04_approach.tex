@@ -26,7 +26,7 @@
 
 \node[box, below left=0.6cm and 0.1cm of S] (L) {$\gets x$\\[4pt] \regpressure{1}\\[4pt] \textcolor{TBgreen}{reload(x)} \\[2pt] $\gets x$};
 
-\node[box, below right=0.6cm and 0.1cm of S] (B) {\regpressure{}\\[2pt] $\gets y$ \\[2pt] \textcolor{blue}{evict($y$)} \\[2pt] \textcolor{blue}{reload($x$)}};
+\node[box, below right=0.6cm and 0.1cm of S] (B) {\regpressure{}\\[2pt] $\gets y$ \\[2pt] \textcolor{TBpurple}{evict($y$)} \\[2pt] \textcolor{TBpurple}{reload($x$)}};
 
 \node[box, below=0.9cm of B] (H) {$\gets x$\\[4pt] $\vdots$};
 
@@ -60,7 +60,7 @@
     \begin{enumerate}
         \item Lifetime analysis with calculation of next-use distances
         \item[2.1.] \textcolor{blue}{Spilling pass} to reduce register pressure at critical points (\regpressure{})
-        \item[2.2.] During spilling calculate optimal loop header register state 
+        \item[2.2.] During spilling calculate \textcolor{TBpurple}{optimal loop header state }
         \item[3.] \textcolor{TBgreen}{Codegen} with repairing at constrained instructions (see $z$) and insertion of reloads. 
     \end{enumerate}
 \end{minipage}

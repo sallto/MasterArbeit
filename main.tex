@@ -82,20 +82,23 @@
 \newcommand*{\getFaculty}{Informatics}
 \newcommand*{\getDegree}{Informatics}
 \newcommand*{\getSchool}{Computation, Information and Technology}
-\newcommand*{\getTitle}{Thesis title}
-\newcommand*{\getTitleGer}{Titel der Abschlussarbeit}
-\newcommand*{\getAuthor}{Author}
-\newcommand*{\getDoctype}{Bachelor's Thesis, Master's Thesis, \ldots}
-\newcommand*{\getSupervisor}{Supervisor}
-\newcommand*{\getAdvisor}{Advisor}
+\newcommand*{\getTitle}{Improving Register Allocation in a Fast Compiler}
+\newcommand*{\getTitleGer}{Verbesserung der Registerallokation in einem schnellen Compiler}
+\newcommand*{\getAuthor}{Thomas Saller}
+\newcommand*{\getDoctype}{Master's Thesis}
+\newcommand*{\getSupervisor}{Prof. Dr. Thomas Neumann}
+\newcommand*{\getAdvisor}{Dr. Alexis Engelke}
 \newcommand*{\getKeywords}{keyword;another keyword;one more}
-\newcommand*{\getSubmissionDate}{Submission date}
+\newcommand*{\getSubmissionDate}{08.04.2026}
 \newcommand*{\getSubmissionLocation}{Munich}
+
 
 % TODO: change citation style in settings
 \input{settings}
 
 \begin{document}
+
+
 
 % Set page numbering to avoid "destination with the same identifier has been already used" warning for cover page.
 % (see https://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages).
@@ -128,9 +131,12 @@
 \addchap{Abbreviations}
 \begin{acronym}
 	\itemsep-.25\baselineskip
-	\acro{TUM}[TUM]{Technical University of Munich}
 	\acro{SSA}[SSA]{Static Single Assignment}
 	\acro{RA}{Register Allocation}
+  \acro{GC}{Graph coloring}
+  \acro{IR}{Intermediate representation}
+  \acro{LICM}{Loop invariant code motion}
+  \acro{CFG}{Control flow graph}
 	% TODO: add acronyms
 \end{acronym}
 
