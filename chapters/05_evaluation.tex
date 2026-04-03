@@ -359,10 +359,93 @@ The additional 2 passes through the IR, as well as the register set matching bet
 
 \section{Code size}
 
+\begin{figure}[t]
+    \centering
+      \begin{tikzpicture}
+    \begin{axis}[
+      ybar=0pt,
+      ymax=3,
+      ymin=0,
+      ymajorgrids=true,
+      ytick distance=.2,
+      bar width=6pt,
+      symbolic x coords = {
+        600.perl,
+        602.gcc,
+        605.mcf,
+        620.omnetpp,
+        623.xalanc,
+        625.x264,
+        631.deepsjeng,
+        641.leela,
+        648.exchange2,
+        657.xz,
+        geomean
+      },
+      enlarge x limits=0.05,
+      xtick=data,
+      xtick pos=bottom,
+      cycle list={%
+        TLpear!30!black,fill=TLpear,mark=none,postaction={pattern=crosshatch dots}\\%
+        TLorange!30!black,fill=TLorange,mark=none\\%
+        TLlightcyan!30!black,fill=TLlightcyan,mark=none,postaction={pattern=crosshatch dots}\\%
+        TLlightblue!30!black,fill=TLlightblue,mark=none\\%
+        TLpink!30!black,fill=TLpink,mark=none\\%
+        TLlightyellow!30!black,fill=TLlightyellow,mark=none\\%
+        TLlightcyan!30!black,fill=TLlightcyan,mark=none\\%
+        TLolive!30!black,fill=TLolive,mark=none\\%
+        TLmint!30!black,fill=TLmint,mark=none\\%
+        TLpear!30!black,fill=TLpear,mark=none\\%
+        TLpalegray!30!black,fill=TLpalegray,mark=none\\%
+        TLlightblue!30!black,fill=TLlightblue,mark=none\\%
+      },
+      xticklabel style={rotate=30,anchor=east,align=center},
+      yticklabel style={font=\large},
+    legend style={legend columns=2,
+        at={(0,1)},
+        anchor=north west,},
+      legend image code/.code={
+        \draw [#1] (0cm,-0.1cm) rectangle (0.2cm,0.25cm); },
+     width=12cm,
+      height=8cm,
+      ]
+%\addplot table[x=benchmark,y expr=\thisrow{o1-x86_64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-clang},col sep=comma] {plots/output/spec_text_size_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-tpde-old},col sep=comma] {plots/output/spec_text_size_speedup.csv};
+      \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-tpde},col sep=comma] {plots/output/spec_text_size_speedup.csv};
+      %\addplot table[x=benchmark,y expr=\thisrow{o1-aarch64-clang}/\thisrow{o1ir-aarch64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+      %\addplot table[x=benchmark,y expr=\thisrow{o1-aarch64-clang}/\thisrow{o1ir-aarch64-tpde},col sep=comma] {plots/output/spec_runtime_speedup.csv};
+
+      \coordinate (A) at (axis cs:geomean,1);
+      \coordinate (O1) at (rel axis cs:0,0);
+      \coordinate (O2) at (rel axis cs:1,0);
+
+      \draw [black,sharp plot,dashed] (A -| O1) -- (A -| O2);
+
+      \legend{
+        LLVM -O0 x86-64,
+        TPDE x86-64,
+        Ours x86-64,
+     %  LLVM -O0 AArch64,
+      %  TPDE AArch64
+      }
+
+    \end{axis}
+  \end{tikzpicture}
+    \caption{SPEC CPU2017 integer text size relative to clang-O1 backend with optimized IR.}
+    \label{fig:spec_text_size}
+\end{figure}
+
+When comparing sizes of the \texttt{.text} segment of the generated binaries, we see an increase of $8\%$ for our implementation compared to TPDE (geomean $1.99$ vs $1.83$), both being around twice the size of llvm-O1. Usually we expect a smaller code size for better register allocation, but in this case the splitting of jumps as well as the matching of register sets for all branches leads to an increase in code size. 
+The primary way to avoid this code size increase would be to optimize scenarios similar to \autoref{lst:example-smallcond}, by generating most of the connecting code at the beginning of the merge block instead of at each of its predecessors. 
+
+Matching the code size of llvm-O1 is not possible due to the superior instruction selection and additional optimizations performed by llvm-O1.
 \section{Discussion}
 
 Our results show, that we were able to achieve a moderate improvement in runtime performance compared to the original TPDE, while still remaining significantly faster than llvm-O0. However, there is still a significant gap to llvm-O1, which is difficult to close without more elaborate analyses. Especially in the worst performing benchmarks, where we see no improvement while incurring a large compile-time penalty.
 Some compile-time gap to TPDE may be closed by optimizing the implementation, specifically around minimizing the number of allocations.
+
+Nevertheless, our implementation is a new pareto-optimum for compiling optimized IR, as it is significantly faster than llvm-O1 while still providing a runtime improvement compared to both TPDE and llvm-O0. Additionally, our implementation is independant of the IR, so it may be used as a back-end for other IRs, where problems such as the LICM may be avoided.
 
 \section{Unoptimized IR}
 

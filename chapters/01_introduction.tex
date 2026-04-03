@@ -1,123 +1,24 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 % Read the CSV files
-\pgfplotstableread[col sep=comma]{plots/output/pareto/all.csv}\alldata
-\pgfplotstableread[col sep=comma]{plots/output/pareto/dominators.csv}\dominators
+
 \chapter{Introduction}\label{chapter:introduction}
 
-\begin{itemize}
-  \item Compile speed is important for some applications like Database systems
-  \item For short running programs, compile time is the dominant factor
-  \item Gains from optimizations are not sufficient to amortize the additional compile time
-  \item For long running programs, runtime is the dominant factor and more expensive optimizations are beneficial
-  \item For most scenarios where a short compile time is wanted, the most interesting metric is the combined compile and runtime of a program \todo{citation}
-  \item TPDE~\cite{tpde} is currently the fastest Compiler for LLVM-IR in unoptimized scenarios (-O0) targeting x84-64 and AArch64
-  \item However, transitioning from TPDE to the next optimization level, LLVM~\cite{llvm} O1 pipeline is a large step in compile time
-  \item compile time increases by approximately \todo{10} times while delivering only around \todo{5} times runtime improvement (as illustrated in Fig.~\ref{fig:pareto_intro})
-  \item Therefore there is a significant subset of programs in JIT scenarios that are likely to benefit from some level of optimization, but currently lack a fast enough solution
-\end{itemize}
+Just-in-time (JIT) compilation is a widely used technique for improving performance for applications, where the combined compilation and execution speed is critical. Such applications include dynamic runtimes, such as the Java virtual machine~\cite{jvm}, as well as data base query acceleration~\cite{sql-jit}.
+Since compile time directly contributes to end-to-end latency, fast machine code generation is especially important for JIT compilation. Recently, TPDE~\cite{tpde} has shown that the compilation speed of the LLVM unoptimized back-end can be improved substantially, while keeping a similar runtime performance. 
 
-%\item In this work we bridge this gap by introducing a better but still efficient register allocator to TPDE, which improves runtime performance to \todo{80\%} of LLVM-O1 while compiling on average \todo{50\%} faster.
+Since compile-time and runtime are fundamentally a tradeoff in JIT systems, many systems use multi-tiered approaches, trading off compilation time and code quality~\cite{tpde}. However, the gap in compile time between TPDE and optimized back-end of LLVM (\texttt{-O1}) is \todo{two orders of magnitude}, which leaves a large gap for programs that might benefit from a better code generation, but cannot justify the large compile time increase.
 
-% relevant for pareto plot: https://dis.ijs.si/tea/Publications/Filipic18Taxonomy.pdf
+To adress this gap, we present a novel register allocation approach built on top of TPDE, allowing for better code generation while keeping a comparatively fast compile time. Our work consists of two analysis passes, namely a lifetime analysis, which also generates next-use information, and a spill pass that identifies, which values to spill, as well as optimizing the spill locations to minimize spills in loops. During code generation, we introduce a repairing mechanism to handle instruction constraints, which allows us to generate better code for constrained instructions, such as division on \texttt{x86-64}.
 
+On SPECint 2017 we achieve a \todo{30\%} runtime improvement over the LLVM -O0 back-end, while keeping a \todo{3x} faster compile time on optimized LLVM IR. Although this also incurrs a \todo{6x} compile time increase compared to TPDE. Still our works ahcieve a new pareto-optimum for compiling optimized IR, as it is significantly faster at compile tiime than LLVM-O1 while still providing a runtime improvement compared to both TPDE and LLVM-O0. 
 
-
-\begin{figure}[]
-    \centering
-\label{fig:pareto_intro}
-\begin{tikzpicture}
-\begin{axis}[
-    xlabel={Compile Time (lower is better)},
-    ylabel={Runtime (lower is better)},
-    grid=major,
-    legend pos=north east,
-    width=12cm,
-    height=6cm,
-    enlargelimits=0.05,
-]
-
-
-% Plot all points with colors by category (low saturation)
-\addplot[
-    only marks,
-    mark=*,
-    mark size=2pt,
-    scatter,
-    scatter src=explicit symbolic,
-    scatter/classes={
-        TPDE={mark=*,blue!30},
-        LLVM-O0={mark=*,red!30},
-        LLVM-O1={mark=*,green!30},
-        LLVM-O2={mark=*,orange!30},
-        LLVM-O3={mark=*,purple!30},
-        GCC-O0={mark=*,cyan!30},
-        GCC-O1={mark=*,magenta!30},
-        GCC-O2={mark=*,yellow!50!black!30},
-        GCC-O3={mark=*,brown!30}
-    },
-] table[x=compile_time, y=runtime, meta=category] {\alldata};
-\addlegendentry{All points}
-
-% Plot Pareto front points with colors by category (full saturation)
-\addplot[
-    only marks,
-    mark=*,
-    mark size=3pt,
-    scatter,
-    scatter src=explicit symbolic,
-    scatter/classes={
-        TPDE={mark=*,blue},
-        LLVM-O0={mark=*,red},
-        LLVM-O1={mark=*,green!70!black},
-        LLVM-O2={mark=*,orange},
-        LLVM-O3={mark=*,purple},
-        GCC-O0={mark=*,cyan!70!black},
-        GCC-O1={mark=*,magenta},
-        GCC-O2={mark=*,yellow!50!black},
-        GCC-O3={mark=*,brown}
-    },
-] table[x=compile_time, y=runtime, meta=category] {\dominators};
-
-% Draw lines connecting Pareto front points
-\addplot[
-    no markers,
-    color=black,
-    thick,
-] table[x=compile_time, y=runtime] {\dominators};
-
-\addlegendentry{Pareto front}
-\end{axis}
-\end{tikzpicture}
-\end{figure}
-
-\section*{Approach}
+The key contribution of our work include:
 
 \begin{itemize}
-  \item fast accurate liveness analysis \todo{cite paper}
-  \item utilize SSA form to seperate spilling and register allocation phases
-  \item Implememnt a fast spilling phase without requiring changes to the icnoming IR.
-  \item spilling analysis without requiring prior isntruction selection phase.
-  \item build a repairing register allocator to adress architecture constrints.
+    \item A lifetime analysis that generates next-use information in the same pass
+    \item A spill analysis that identifies values to spill without relying on knowledge of the instruction semantics, or requiring modification to the IR.
+    \item A simplified repairing mechanism to handle instruction constraints during code generation, without rolling back code generation.
 \end{itemize}
 
-\section*{Contribution}
-
-\begin{itemize}
-  \item Building a simplified spilling mechanism whichi guarantees correctness (even for incorrect liveness data)
-  \item spilling wihtout modifications to IR 
-  \item Improving Pareto optimal compilation trade-offs. 
-\end{itemize}
-
-\section*{Outline}
-
-
-\begin{itemize}
-  \item Background
-  \item Liveness
-  \item Spilling
-  \item Register allocation
-  \item Related work
-  \item Evaluation
-  \item Conclusion
-\end{itemize}
+The remainder of this thesis is structured as follows: In \autoref{ch:background} we provide background on register allocation and TPDE, as well as the limitation resulting from the frameworks design. In \autoref{chapter:approach} we present our approach. In \autoref{chapter:related_work} we discuss related work in register allocation, and how it relates to our approach. Next we evaluate our approach compared to TPDE, LLVM-O0 and LLVM-O1 in \autoref{chapter:evaluation}. Finally, we summarize our findings and discuss future work in \autoref{chapter:conclusion}.

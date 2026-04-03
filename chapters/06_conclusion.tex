@@ -2,15 +2,13 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 
-\chapter{Conclusion}\label{chapter:conclusion}
+\chapter{Conclusion and Future Work}\label{chapter:conclusion}
 
+In this thesis we presented a novel register allocation approach built on top of TPDE, allowing for better code generation, while not requireing inforamition on the specific instruction semantics, and keeping the core single-pass code generation.
+We introduced a lifetime and next-use analysis, as well as a spill analysis that approximates register pressure and optimizes spill locations around loops. During code generation, we introduced a repairing mechanism to preserve values across constrained instructions, by inserting moves.
 
-\section{Future Work}
+On SPECint 2017 we achieve a \todo{30\%} runtime improvement over the LLVM -O0 back-end, while keeping a \todo{3x} faster compile time on optimized LLVM IR. Although this also incurrs a \todo{6x} compile time increase compared to TPDE. Despite the overall improvements, we see no difference for some benchmarks, due to the limitations of our approach when using optimized LLVM-IR, which was not designed to be used for code generation without further transformations.
 
+Future work may address the limitations of our approach, by implementing additional analyses, specifically around \texttt{getelementptr} instructions with constant offsets, which are a limiting factor for our approach. Storing such values as offsets from a base pointer would enable better code generation especially in the worst performing benchmarks, but would potentially require additional modification to the base TPDE framework, which is intended to be IR agnostic. Additionally, the code quality may be improved by implementing a more elaborate repairing mechanism, that can handle shuffling multiple operands for a constrained instruction. Finally, a better heuristic may avoid spills for loops with low register pressure, as seen in \autoref{fig:asm}.
 
-\begin{itemize}
-    \item Register Aliasing
-    \item Irreducible Control flow 
-    \item rest was ich nicht geschafft hab.
-    \item 
-\end{itemize}
+The compile time overhead may be reduced by optimizing our implementation, in particular by minimizing the number of allocations caused by set operations. 
