@@ -43,7 +43,7 @@ As TPDE~\cite{tpde} does not use have access to runtime profiling information, t
 \section{SSA Register Allocation}
 
 By utilizing the favorable properties of SSA form, these strategies can avoid the runtime costs of traditional graph coloring approaches. Although adapting these results for real architectures with constrained instructions and no swap instructions requires live range splitting and additional modifications to the IR~\cite{hack-thesis}.
-Such modifications would not be difficult to integrate into TPDE, which cannot modify the underlying IR, but would produce better results compared to our approach, which handles constraints only during code generation.
+Such modifications would be difficult to integrate into TPDE, which cannot modify the underlying IR, in addition TPDE lacks the information about constraints before codegeneration.
 
 Instead of the previously necessary modifications to the program, Colombet et al.~\cite{treescan} introduce the notion of repairing if an irregularity is encountered. By allowing the register set to deviate at such points, they present a simpler algorithm that falls back to graph coloring in situations where a repairing using parallel moves along is not possible. 
 

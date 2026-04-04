@@ -73,7 +73,7 @@ Then a spilling pass marks registers to be spilled at points with high register 
 Additionally, we calculate a minimal register set for loop headers, that contains as many loop values as possible, while spilling non-loop values ($y$ at end of $B$).
 
 During code generation we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we try to repair the register state by moving values to different registers to avoid them being lost due to the instruction constraints. 
-At branches, we insert connecting code to ensure the register state matches the target block and the calculated loop header state if we branch to a loop header.
+At branches, we insert connecting code to ensure the register state matches the target block, and the calculated loop header state, if we branch to a loop header.
 
 \section{Liveness with next-use Distance}
 

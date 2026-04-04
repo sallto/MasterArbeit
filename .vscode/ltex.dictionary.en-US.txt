@@ -13,3 +13,4 @@ SPECint
 bitset
 Asahi
 minAlgorithm
+llvm-link
