@@ -10,3 +10,4 @@ getelementptr
 deduplication
 Sregmatch
 SPECint
+bitset
