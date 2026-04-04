@@ -4,5 +4,5 @@ However, this results in a 100x gap in compile time to the next optimization lev
 
 In this work we present a novel register allocation approach built on top of TPDE, allowing for better code generation while keeping the core single-pass code generation. Using two analysis passes, as well a repairing mechanism during code generation, we optimize spill locations and handle instruction constraints.
 
-On SPECint 2017 we achieve a \todo{30\%} runtime improvement over the LLVM -O0 back-end, while keeping a \todo{3x} faster compile time on optimized LLVM IR. Our results show the potential for a faster lightly optimizing compiler back-end,  although several issues in design and implementation limit the performance of our approach.
+On SPECint 2017 we achieve a 24\% runtime improvement over the LLVM -O0 back-end, while keeping a 3x faster compile time on optimized LLVM IR. Although, this also results in a 6x compile time slowdown compared to the original TPDE. Our results show the potential for a faster lightly optimizing compiler back-end,  although several issues in design and implementation limit the performance of our approach.
 
