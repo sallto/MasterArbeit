@@ -216,16 +216,15 @@ In addition to the normal Values, they can also allocate scratch registers, whic
 
 \begin{lstlisting}[float,frame=none,caption={Example instruction compiler for an 64-bit unsigned division instruction for x86-64. The framework will move values into registers and create a copy of the first operand if required. We use a ScratchReg to clear the \texttt{RDX} register.}, label={lst:example-div}, language=C++,captionpos=b]
 void emit_udiv64(IRInstr inst) {
-    ValuePartRef lhs_ref = val_ref(inst->getOperand(0), 0); // Handle for operand 0, part 0
-    ValuePartRef rhs_ref = val_ref(inst->getOperand(1), 0); // Handle for operand 1, part 0
-    ScratchReg rdx_scratch{}; // Scratch for RDX, unspillable
+    ValuePartRef lhs_ref = val_ref(inst->getOperand(0)); // Handle for operand 0
+    ValuePartRef rhs_ref = val_ref(inst->getOperand(1)); // Handle for operand 1
+    ScratchReg rdx_scratch{Reg::DX}; // Scratch for RDX, unspillable
     lhs_ref.into_specific(Reg::AX); // Move or load lhs into RAX
     ValuePartRef res_ref = result_ref_will_overwrite(inst, 0, std::move(lhs_ref));
 
-    AsmReg rdx_reg = rdx_scratch.allocate_specific(Reg::DX); // reserve RDX for the Scratch
-    ASM(XORrr, rdx_reg, rdx_reg); // Ensure RDX is zero
+    ASM(XORrr, rdx_scratch.cur_reg(), rdx_scratch.cur_reg()); // Ensure RDX is zero
     AsmReg rhs_reg = val_as_reg(rhs_ref); // Force into arbitrary GP register
-    ASM(DIV64rr, rhs_reg); // Encode instruction, clobbers first operand
+    ASM(DIV64rr, rhs_reg); // Encode instruction, clobbers RDX, RAX
     set_value(res_ref, res_ref.cur_reg()); // Notify framework that register was modified
 } // Release handles and scratch
 \end{lstlisting}

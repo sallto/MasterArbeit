@@ -20,7 +20,7 @@
 *.xmpi
 *.synctex.gz
 *.synctex(busy)
-
+*.bbl-SAVE-ERROR
 # LaTeX directories
 /build/
 /dist/

@@ -1,6 +1,6 @@
 \chapter{\abstractname}
-Fast machine code generation is especially important for fast start-up just-in-time compilation, where compilation time directly contributes to end-to-end latency. Yet the generated code quality can be highly suboptimal, leading to many systems using multi tiered approaches, trading off compilation time and code quality. Recently TPDE has shown that compilation speed of LLVM unoptimized back-end can be improved substantially while keeping a similar runtime. 
-However, this results in a $100$x gap in compile time to the next optimization level. 
+Fast compilation is important when compilation occurs at runtime, such as query compilers in modern database systems and virtual machines in modern languages. Yet the initially generated code quality can be highly suboptimal, leading to many systems using multi tiered approaches, trading off compilation time and code quality. Recently TPDE has shown that compilation speed of LLVM unoptimized back-end can be improved substantially while keeping a similar runtime. 
+However, this results in a 100x gap in compile time to the next optimization level (\texttt{-O1}). 
 
 In this work we present a novel register allocation approach built on top of TPDE, allowing for better code generation while keeping the core single-pass code generation. Using two analysis passes, as well a repairing mechanism during code generation, we optimize spill locations and handle instruction constraints.
 

@@ -9,3 +9,4 @@ LICM
 getelementptr
 deduplication
 Sregmatch
+SPECint
