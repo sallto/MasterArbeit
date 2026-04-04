@@ -152,13 +152,13 @@ For large functions, this can lead to many live-through values, which can be pro
             \node[block, below=of b2] (x) {end};
 
             % Forward edges
-            \draw[->] (entry) -- (h1);
-            \draw[->] (h1) -- node[right] {\small in} (b1);
-             \draw[->] (b1.east) -- ++(0.5,0) |- ++(0,3.25) node[above right] {\small exit} -|  (h2.north);
-            \draw[->] (h2) -- node[right] {\small in} (b2);
+            \draw[->,color=TBblue,thick] (entry) -- (h1);
+            \draw[->] (h1) --  (b1);
+             \draw[->,color=TBblue,thick] (b1.east) -- ++(0.5,0) |- ++(0,3.25) node[above right] {\small exit} -|  (h2.north);
+            \draw[->] (h2) -- (b2);
             \draw[->] (h2.east) -- ++(1.2,0) |- node[pos=0.25,right] {\small exit} (x.east);
-            \draw[->] (b2) -- ++(-1.2,0) |- node[pos=0.25,right] {\small back} (h2.west);
-            \draw[->] (b1.west) -- ++(-1.2,0) |- node[pos=0.25,left] {\small back} (h1.west);
+            \draw[->,color=TBblue,thick] (b2) -- ++(-1.2,0) |- node[pos=0.25,right] {\small back} (h2.west);
+            \draw[->,color=TBblue,thick] (b1.west) -- ++(-1.2,0) |- node[pos=0.25,left] {\small back} (h1.west);
 
         \end{tikzpicture}
         \caption{Control-flow graph}
@@ -189,7 +189,7 @@ For large functions, this can lead to many live-through values, which can be pro
         \caption{Loop nesting forest}
     \end{subfigure}
 
-    \caption{A control-flow graph and its corresponding loop nesting forest~\cite{fast-liveness}. The outermost loop $L_0$ is only the root of the tree, and does not get treated as a loop, this corresponds to the existing loop analysis in TPDE~\cite{tpde}. The edges marked \texttt{in} and \texttt{back} are loop edges, along which the header liveness is propagated. On edges marked \texttt{exit} the loop exit penalty is added if a value is live after the loop.}
+    \caption{A control-flow graph and its corresponding loop nesting forest~\cite{fast-liveness}. The outermost loop $L_0$ is only the root of the tree, and does not get treated as a loop, this corresponds to the existing loop analysis in TPDE~\cite{tpde}. The edges marked blue are loop edges, as they connect to a loop header, which are skipped on the partial liveness pass.  On edges marked \texttt{exit} the loop exit penalty is added if a value is live after the loop.}
 \end{figure}
 
 Notice that this calculation is not correct for irreducible loops, that have multiple loop headers. As we consider irreducible loops to be rare, we do not handle this case as the insufficient liveness information will not affect the correctness of the final generated program. For further details on how to adapt this liveness analysis for irreducible control flow, see \autocite{fast-liveness}.
