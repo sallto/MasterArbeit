@@ -11,3 +11,5 @@ deduplication
 Sregmatch
 SPECint
 bitset
+Asahi
+minAlgorithm

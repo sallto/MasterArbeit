@@ -61,7 +61,7 @@
         \item Lifetime analysis with calculation of next-use distances
         \item[2.1.] \textcolor{blue}{Spilling pass} to reduce register pressure at critical points (\regpressure{})
         \item[2.2.] During spilling calculate \textcolor{TBpurple}{optimal loop header state }
-        \item[3.] \textcolor{TBgreen}{Codegen} with \textcolor{darkorange}{repairing} at \textcolor{TBred}{constrained instructions} and insertion of reloads. 
+        \item[3.] \textcolor{TBgreen}{Code generation} with \textcolor{darkorange}{repairing} at \textcolor{TBred}{constrained instructions} and insertion of reloads. 
     \end{enumerate}
 \end{minipage}
 \end{figure}
@@ -70,22 +70,22 @@ This chapter describes how we extend the TPDE framework to support better regist
 
 First we perform a lifetime analysis that calculates the distance to the next use of a value at each point.
 Then a spilling pass marks registers to be spilled at points with high register pressure (\regpressure{}), spilling the furthest next-use ($x$ at $B$, and $y$ at $L$). These values are then spilled after their definition. 
-Additionally we calculate a minimal register set for loop headers, that contains as many loop values as possible, while spilling non-loop values ($y$ at end of $B$).
+Additionally, we calculate a minimal register set for loop headers, that contains as many loop values as possible, while spilling non-loop values ($y$ at end of $B$).
 
-During codegeneration we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we try to repair the register state by moving values to different registers to avoid them being lost due to the instruction constraints. 
-At branches we insert connecting code to ensure the register state matches the target block and the calculated loop header state if we branch to a loop header.
+During code generation we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we try to repair the register state by moving values to different registers to avoid them being lost due to the instruction constraints. 
+At branches, we insert connecting code to ensure the register state matches the target block and the calculated loop header state if we branch to a loop header.
 
 \section{Liveness with next-use Distance}
 
 As described in \autoref{sec:tpde}, the existing liveness analysis in TPDE is on the Basic Block level and does not support lifetime holes.
 
-This is insufficient for a effective register allocation, as it creates too many interference between variables, that are not actually present in the original program.
+This is insufficient for an effective register allocation, as it creates too many interferences between variables, that are not actually present in the original program.
 
 To resolve this we introduce a precise liveness analysis, that also calculates the next-use distance at each point in the program.
 
 For this we adapt the approach by \textcite{fast-liveness}.  %todo fix this citation
 
-We define the next-use as the number of instructions between \textit{start of the current block} and the next use of the variable. This means that next-uses are always strictly increasing in a block. The next-use distance can be easily calculated using the index of the current instruction and the next-use. 
+We define the next-use as the number of instructions between \emph{start of the current block} and the next use of the variable. This means that next-uses are always strictly increasing in a block. The next-use distance can be easily calculated using the index of the current instruction and the next-use. 
 
 \subsection{Data structures}
 
@@ -115,9 +115,9 @@ Overall this allows for finding the next-use of a value in logarithmic time in t
 First we calculate partial liveness for each block by traversing the CFG in post order, skipping loop edges. 
 For each block we process the instructions in forward order, while tracking the current instruction index and noting the definitions and uses of each variable. 
 
-To find the live out distances, we iterate over the direct suceessors, while skipping loop edges and taking the minimum next-use from the successors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
+To find the live-out distances, we iterate over the direct successors, while skipping loop edges and taking the minimum next-use from the successors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
 
-Note that we consider values that are used only in a phi definition not live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
+Note that we consider values that are used only in a $\phi$ definition not live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
 
 
 \subsection{Liveness propagation}
@@ -130,7 +130,7 @@ The next-use entry is larger than the size of block indicating the value is live
 
 Whenever a value is propagated to a different loop (including $L_0$), we add the loop exit penalty to the next-use entry.
 
-For large functions, this can lead to many live-through values, which can be problematic as our original datastructure results in one allocation per entry created. Therefore we track the live-through values seperately in a vector, which is later sorted by the index of the value and its next-use entry. This still allows quick access (in logarithmic time of the number of live-though values in the block), while reducing the number of allocations to one per block.
+For large functions, this can lead to many live-through values, which can be problematic as our original data structure results in one allocation per entry created. Instead, we track the live-through values separately in a vector, which is later sorted by the index of the value and its next-use entry. This still allows quick access (in logarithmic time of the number of live-though values in the block), while reducing the number of allocations to one per block.
 
 
 \begin{figure}
@@ -200,7 +200,7 @@ Notice that this calculation is not correct for irreducible loops, that have mul
 
 \section{Spilling}
 
-The primary purpose of the spilling pass is to ensure that the register pressure is less than the number of registers $k$. Typically, a spilling pass inserts spills and loads into the IR. For SSA form, this will also require inserting phi nodes as the reloaded value has to be distinct from the original value, to remain in SSA form.
+The primary purpose of the spilling pass is to ensure that the register pressure is less than the number of registers $k$. Typically, a spilling pass inserts spills and loads into the IR. For SSA form, this will also require inserting $\phi$ nodes as the reloaded value has to be distinct from the original value, to remain in SSA form.
 
 Instead, we only store the results of the spilling pass, and ensure that blocks are correctly connected, with each value in one unique location during code generation.
 
@@ -317,10 +317,10 @@ For loop headers, we initialize $W$ to only contain variables used in the loop a
 This ideally ensures that loop iterations can be executed without spilling. 
 Since our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
 
-\section{Register allocation during Codegeneration}
+\section{Register allocation during code generation}
 
-After the previous passes, we are now at the codegeneration stage of TPDE. Therefore any generated instruction cannot be undone, as they are immediately encoded. 
-This stage focuses on avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including phi nodes.
+After the previous passes, we are now at the code generation stage of TPDE. Therefore, any generated instruction cannot be undone, as they are immediately encoded. 
+This stage focuses on avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including $\phi$ nodes.
 
 \subsection{Register choice in a Basic Block}
 \subsubsection{Register choice for unconstrained instructions}
@@ -331,7 +331,7 @@ Should there be no free register, we need to spill a value. For this we choose t
 
 \subsubsection{Register choice for constrained instructions}
 
-For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a Scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby avoiding an additional spill. If no register is available, we spill the occupying value, since the previously used spill information is not correct around constrained instructions. 
+For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a Scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby repairing the assignment instead of spilling. If no register is available, we spill the occupying value, since the previously used spill information is not correct around constrained instructions. 
 
 As requests are processed value by value it is possible, that we miss shuffling opportunities between operands.
 For example assume we have values $x$ and $y$ in registers $rax$ and $rdx$ respectively and all other registers are occupied.
@@ -363,7 +363,7 @@ Then in a second pass we first move all stack operands to their location, which 
 
 At the end of each block we need to connect them with their successors. If the successor has only one predecessor, we can simply use the current register without any additional moves. For blocks with multiple predecessors, the register state of the first generated predecessor is used. If the current register state does not match the target state, we generate a parallel move to resolve the differences. We ensure this is possible by requiring one register per bank to be free in branch regions. This allows for the use of parallel moves to resolve any register conflicts. We try to minimize the amount of connecting moves necessary using the preferred register mechanism.
 
-If a successor contains phi nodes, we try to allocate them to a register and move their incoming value to this register, this is done in the same parallel move as before. This can also handle all cycles or swaps using phi nodes as long as they are in registers. If the phi nodes are not in registers and conflict, we try to use the free register as an intermediate, otherwise we need to allocate an additional stack slot to resolve the conflict. 
+If a successor contains $\phi$ nodes, we try to allocate them to a register and move their incoming value to this register, this is done in the same parallel move as before. This can also handle all cycles or swaps as long as they are in registers. If the $\phi$ nodes are not in registers and conflict, we try to use the free register as an intermediate, otherwise we need to allocate an additional stack slot to resolve the conflict. 
 
 As we cannot undo any action taken during this connecting step we currently require all jumps to be split, although it would be possible to precalculate whether any moves, spills or reloads are necessary and then deciding whether a jump must be split.
 
