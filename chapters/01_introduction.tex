@@ -4,16 +4,26 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-Just-in-time (JIT) compilation is a widely used technique for improving performance for applications, where the combined compilation and execution speed is critical. Such applications include dynamic runtimes, such as the Java virtual machine~\cite{jvm}, as well as database query acceleration~\cite{sql-jit}.
+Just-in-time (JIT) compilation is a widely used technique for improving performance for applications, where the combined speed of compilation and execution is critical. Such
+applications include dynamic runtimes such as the Java Virtual Machine~\cite{jvm} as well as
+the acceleration of database queries~\cite{sql-jit}. 
+
 Since compile time directly contributes to end-to-end latency, fast machine code generation is especially important for JIT compilation. Recently, TPDE~\cite{tpde} has shown that the compilation speed of the LLVM~\cite{LLVM} unoptimized back-end can be improved substantially, while keeping a similar runtime performance. 
 
-Since compile-time and runtime are fundamentally a trade-off in JIT systems, many systems use multi-tiered approaches, with the first tier being baseline and later stages being increasingly optimized~\cite{tpde}. However, when using LLVM, the gap in compile time between TPDE and optimized back-end of LLVM (\texttt{-O1}) is two orders of magnitude, which leaves a large gap for programs that might benefit from a better code generation, but cannot justify the large compile time increase.
+Since JIT systems inherently involve a trade-off between compilation and runtime, many
+systems employ multi-stage approaches, with the first stage serving as the baseline and subsequent stages being progressively optimized~\cite{tpde}.
+However, when using LLVM, the difference in compilation time between TPDE and LLVM's optimized backend (\texttt{-O1}) is two orders of magnitude, leaving a significant gap for programs that could benefit from better code generation, but for which the substantial increase in compilation time cannot be justified.
 
-To address this gap, we present a novel register allocation approach built on top of TPDE, allowing for better code generation while keeping a comparatively fast compile time. Our work consists of two analysis passes, namely a lifetime analysis, which also generates next-use information, and a spill pass that identifies, which values to spill, as well as optimizing the spill locations to minimize spills in loops. During code generation, we introduce a repairing mechanism to handle instruction constraints, which allows us to generate better code for constrained instructions, such as division on \texttt{x86-64}.
+To address this gap, we propose a novel register allocation approach built on top of TPDE that enables improved code generation while maintaining relatively fast compilation times. Our approach consists of two analysis passes: a liveness analysis, which additionally computes next-use information, and a spill analysis pass that determines which values to spill and optimizes spill locations to reduce spill overhead in loops. During code generation, we introduce a repair mechanism for handling instruction constraints, enabling more efficient code generation for constrained operations such as integer division on \texttt{x86-64}.
 
-On SPECint 2017 we achieve a 24\% runtime improvement over the LLVM-O0 back-end, while keeping a three times faster compile time on optimized LLVM IR. Although this also incurs a 6x compile time increase compared to TPDE. Still our works achieve a new Pareto optimum for compiling optimized IR, as it is significantly faster at compile time than LLVM-O1 while still providing a runtime improvement compared to both TPDE and LLVM-O0. 
-
-The key contribution of our work include:
+On SPECint 2017, we achieve a 24\% runtime improvement over the LLVM-O0 backend,
+while the compilation time for optimized LLVM-IR remains three times faster. However,
+this also results in a 5x increase in compilation time compared to TPDE. Nevertheless, our work achieves a
+new Pareto optimum for the compilation of optimized IR, as it is significantly faster than LLVM-O1 in terms of compilation time,
+while simultaneously offering a runtime improvement over both
+TPDE and LLVM-O0.
+\newpage
+The key contributions of our work include:
 
 \begin{itemize}
     \item A lifetime analysis that generates next-use information in the same pass
@@ -21,4 +31,4 @@ The key contribution of our work include:
     \item A simplified repairing mechanism to handle instruction constraints during code generation, without rolling back code generation.
 \end{itemize}
 
-The remainder of this thesis is structured as follows: In \autoref{ch:background} we provide background on register allocation and TPDE, as well as the limitation resulting from the frameworks design. In \autoref{chapter:approach} we present our approach. In \autoref{chapter:related_work} we discuss related work in register allocation, and how it relates to our approach. Next we evaluate our approach compared to TPDE, LLVM-O0 and LLVM-O1 in \autoref{chapter:evaluation}. Finally, we summarize our findings and discuss future work in \autoref{chapter:conclusion}.
+The remainder of this work is structured as follows: In \autoref{ch:background} we provide background on register allocation and TPDE, as well as the constraints arising from the framework’s design. In \autoref{chapter:approach} we present our approach. In \autoref{chapter:related_work} we discuss related work in register allocation, and how it relates to our approach. Next we evaluate our approach compared to TPDE, LLVM-O0 and LLVM-O1 in \autoref{chapter:evaluation}. Finally, we summarize our results and discuss future work in \autoref{chapter:conclusion}.

@@ -10,6 +10,8 @@
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
 \pgfplotsset{compat=1.18}
+\usetikzlibrary{backgrounds,shapes.arrows,shapes.symbols,patterns,positioning,decorations.pathreplacing,calc,shapes.geometric,shapes.multipart,graphs,fit,arrows.meta}
+\usepgfplotslibrary{groupplots}
 \usetikzlibrary{arrows.meta, positioning,calc,patterns}
 \usepackage{listings}
 \usepackage{xcolor}
@@ -75,6 +77,15 @@
   frame=single,
   showstringspaces=false
 }
+
+\makeatletter
+\newcommand\resetstackedplots{
+\makeatletter
+\pgfplots@stacked@isfirstplottrue
+\makeatother
+\addplot [forget plot,draw=none] coordinates{(1,0) (2,0) (3,0)};
+}
+\makeatother
 
 
 % TODO: change thesis information

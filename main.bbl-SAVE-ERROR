@@ -560,6 +560,88 @@
       \field{pages}{247\bibrangedash 262}
       \range{pages}{16}
     \endentry
+    \entry{LLVM}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=082d304bf1444853e07be11590d172a2}{%
+           family={Lattner},
+           familyi={L\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1bbfd49b96c18edb5a0c84c94c3fa6c4}{%
+           family={Adve},
+           familyi={A\bibinitperiod},
+           given={Vikram},
+           giveni={V\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {San Jose, CA, USA}%
+      }
+      \strng{namehash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{fullhash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{fullhashraw}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{bibnamehash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{authorbibnamehash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{authornamehash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{authorfullhash}{0964e8d9ddfb3d949bce90ef30732275}
+      \strng{authorfullhashraw}{0964e8d9ddfb3d949bce90ef30732275}
+      \field{labelalpha}{LA04}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{3}
+      \field{title}{{LLVM}: A Compilation Framework for Lifelong Program Analysis and Transformation}
+      \field{year}{2004}
+      \field{pages}{75\bibrangedash 88}
+      \range{pages}{14}
+    \endentry
+    \entry{sql-jit}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=856106a72d787bcea4281fca718cd7d7}{%
+           family={Neumann},
+           familyi={N\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {VLDB Endowment}%
+      }
+      \strng{namehash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{fullhash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{fullhashraw}{856106a72d787bcea4281fca718cd7d7}
+      \strng{bibnamehash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{authorbibnamehash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{authornamehash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{authorfullhash}{856106a72d787bcea4281fca718cd7d7}
+      \strng{authorfullhashraw}{856106a72d787bcea4281fca718cd7d7}
+      \field{labelalpha}{Neu11}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{As main memory grows, query performance is more and more determined by the raw CPU costs of query processing itself. The classical iterator style query processing technique is very simple and exible, but shows poor performance on modern CPUs due to lack of locality and frequent instruction mispredictions. Several techniques like batch oriented processing or vectorized tuple processing have been proposed in the past to improve this situation, but even these techniques are frequently out-performed by hand-written execution plans.In this work we present a novel compilation strategy that translates a query into compact and efficient machine code using the LLVM compiler framework. By aiming at good code and data locality and predictable branch layout the resulting code frequently rivals the performance of hand-written C++ code. We integrated these techniques into the HyPer main memory database system and show that this results in excellent query performance while requiring only modest compilation time.}
+      \field{issn}{2150-8097}
+      \field{journaltitle}{Proc. VLDB Endow.}
+      \field{month}{6}
+      \field{number}{9}
+      \field{title}{Efficiently compiling efficient query plans for modern hardware}
+      \field{volume}{4}
+      \field{year}{2011}
+      \field{pages}{539\bibrangedash 550}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.14778/2002938.2002940
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.14778/2002938.2002940
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.14778/2002938.2002940
+      \endverb
+    \endentry
     \entry{linear-scan-og}{inproceedings}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=339e6859839335a19c8154848b76b5a8}{%
@@ -673,6 +755,54 @@
       \endverb
       \keyw{Copy coalescing,graph coloring,noncopy coalescing,register allocation}
     \endentry
+    \entry{jvm}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=0190d492bbc5381ae21dc0d465faf9b2}{%
+           family={Paleczny},
+           familyi={P\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=8b024d3d20334154db4ad49e7cb8ce37}{%
+           family={Vick},
+           familyi={V\bibinitperiod},
+           given={Christopher},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=571f167a77aecc7f8501247f3a9071ce}{%
+           family={Click},
+           familyi={C\bibinitperiod},
+           given={Cliff},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{location}{1}{%
+        {Monterey, California}%
+      }
+      \list{publisher}{1}{%
+        {USENIX Association}%
+      }
+      \strng{namehash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{fullhash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{fullhashraw}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{bibnamehash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{authorbibnamehash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{authornamehash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{authorfullhash}{f21051b610c2cc9caf6f3792e8619f90}
+      \strng{authorfullhashraw}{f21051b610c2cc9caf6f3792e8619f90}
+      \field{labelalpha}{PVC01}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The Java HotSpotTM Server Compiler achieves improved asymptotic performance through a combination of object-oriented and classical-compiler optimizations. Aggressive inlining using class-hierarchy analysis reduces function call overhead and provides opportunities for many compiler optimizations.}
+      \field{booktitle}{Proceedings of the 2001 Symposium on JavaTM Virtual Machine Research and Technology Symposium - Volume 1}
+      \field{series}{JVM'01}
+      \field{title}{The java hotspotTM server compiler}
+      \field{year}{2001}
+      \field{pages}{1}
+      \range{pages}{1}
+    \endentry
     \entry{par-move}{article}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=9e82add23781f48cd9f027ceb9dac33b}{%
@@ -734,7 +864,7 @@
       \endverb
       \keyw{The Coq proof assistant,Parallel move,Parallel assignment,Compiler correctness,Compilation}
     \endentry
-    \entry{tpde}{misc}{}{}
+    \entry{tpde}{inproceedings}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=503534cfe3f0c3935615ea4335d2f84d}{%
            family={Schwarz},
@@ -763,24 +893,20 @@
       \strng{authornamehash}{c001ad75992d49b5e47f4b047a875242}
       \strng{authorfullhash}{c001ad75992d49b5e47f4b047a875242}
       \strng{authorfullhashraw}{c001ad75992d49b5e47f4b047a875242}
-      \field{labelalpha}{SKE25}
+      \field{labelalpha}{SKE26}
       \field{sortinit}{S}
       \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{eprintclass}{cs.PL}
-      \field{eprinttype}{arXiv}
+      \field{booktitle}{2026 IEEE/ACM International Symposium on Code Generation and Optimization (CGO)}
       \field{title}{TPDE: A Fast Adaptable Compiler Back-End Framework}
-      \field{year}{2025}
-      \verb{eprint}
-      \verb 2505.22610
+      \field{year}{2026}
+      \field{pages}{427\bibrangedash 439}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1109/CGO68049.2026.11395208
       \endverb
-      \verb{urlraw}
-      \verb https://arxiv.org/abs/2505.22610
-      \endverb
-      \verb{url}
-      \verb https://arxiv.org/abs/2505.22610
-      \endverb
+      \keyw{Codes;Translation;Semantics;Webassembly;Generators;Encoding;Registers;Resource management;High level languages;Optimization;Fast Compilation;Code Generation;LLVM}
     \endentry
     \entry{Wimmer2010}{inproceedings}{}{}
       \name{author}{2}{}{%
@@ -889,7 +1015,6 @@
       \keyw{register allocation,optimization,linear scan,just-in-time compilation,java,graph-coloring,compilers}
     \endentry
   \enddatalist
-  \missing{llvm}
 \endrefsection
 \endinput
 

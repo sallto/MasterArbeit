@@ -26,6 +26,7 @@ COLUMNS = [
     "benchmark",
     "aarch64-clang",
     "aarch64-tpde",
+    "aarch64-tpde-old",
     "o1-aarch64-clang",
     "o1-aarch64-tpde",
     "o1ir-aarch64-clang",
@@ -33,6 +34,7 @@ COLUMNS = [
     "o1ir-aarch64-tpde-old",
     "x86_64-clang",
     "x86_64-tpde",
+    "x86_64-tpde-old",
     "o1-x86_64-clang",
     "o1-x86_64-tpde",
     "o1ir-x86_64-clang",
@@ -53,12 +55,20 @@ FILES = {
     "o1ir-x86_64-clang": ("res-spec-raw-ct-o1ir-x86_64", "clang"),
     "o1ir-x86_64-tpde": ("res-spec-raw-ct-o1ir-x86_64", "tpde"),
     "o1ir-x86_64-tpde-old": ("res-spec-raw-ct-o1ir-x86_64", "tpde_old"),
+    "aarch64-clang": ("res-spec-raw-ct-aarch64", "clang"),
+    "aarch64-tpde": ("res-spec-raw-ct-aarch64", "tpde"),
+    "aarch64-tpde-old": ("res-spec-raw-ct-aarch64", "tpde_old"),
+    "x86_64-clang": ("res-spec-raw-ct-x86_64", "clang"),
+    "x86_64-tpde": ("res-spec-raw-ct-x86_64", "tpde"),
+    "x86_64-tpde-old": ("res-spec-raw-ct-x86_64", "tpde_old"),
 }
 
 
 BASELINES = {
     "aarch64": "o1-aarch64-clang",
     "x86_64": "o1-x86_64-clang",
+    "x86_64_o0": "x86_64-clang",
+    "aarch64_o0": "aarch64-clang",
 }
 
 
@@ -90,6 +100,7 @@ def speedup(
         return None
 
     arch = "aarch64" if "aarch64" in column else "x86_64"
+    arch = arch + "_o0" if "o1" not in column else arch
     baseline_key = BASELINES[arch]
     baseline_runtime = runtimes.get(baseline_key, {}).get(benchmark_id)
     runtime = runtimes.get(column, {}).get(benchmark_id)

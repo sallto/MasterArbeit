@@ -6,16 +6,18 @@ In this chapter, we will introduce the basic concepts of register allocation and
 \section{Register Allocation on non-SSA programs}
 \label{sec:regalloc-non-ssa}
 
-Register Allocation is the process of assigning values from a program to a limited number of $k$ physical registers. This process is commonly modeled as finding the Graph Coloring of an Interference graph corresponding to the program.
+Register allocation is the process of assigning values from a program to a limited number of $k$ physical registers. This process is commonly modeled as finding the graph coloring of an interference graph (IG)corresponding to the program.
 
-The nodes in an interference graph correspond to the values in a program, and edges between them indicate that the connected values interfere with each other and therefore cannot be in the same register. This nicely corresponds to Graph coloring where connected nodes may not be assigned the same color.
+In an interference graph, nodes represent program values, while edges indicate interference between values, meaning that the connected values cannot be assigned to the same register. This formulation naturally corresponds to graph coloring, where adjacent nodes must not share the same color. Consequently, a valid coloring using at most $k$ colors yields a feasible register allocation for the corresponding program on a perfectly regular architecture with at least $k$ registers.
 
-Therefore, a valid coloring with at most $k$ colors would be a valid register allocation for the corresponding program on a perfectly regular architecture with at least $k$ registers.
+In practice, the direct application of such an approach is not feasible, since GC is NP-complete with respect to the number of values~\cite{graph-coloring-np-complete}, and any given IG can be used to construct a program with the same IG~\cite{chaitin1981}. 
+Furthermore, deciding how many registers a program requires or whether $k$ registers are sufficient is also NP-complete~\cite{hack-thesis}.
 
-In practice, using such an approach directly is unfeasible as GC is NP-complete in the number of values~\cite{graph-coloring-np-complete}, and any arbitrary IG can be used to construct a program having the same IG~\cite{chaitin1981}. 
-In addition, deciding how many registers a program requires and deciding whether $k$ registers are sufficient are also NP-complete~\cite{hack-thesis}.
 
-Practical RA needs to rely on heuristics at all steps, to find allocations in a reasonable time. We will illustrate this with the seminal work by Chaitin~\cite{chaitin1981} on the subject. Note that we will assume a theoretical regular architecture for now. We will address architectural constraints and their associated complications later.
+Practical RA must rely on heuristics at every step to find allocations in a reasonable
+amount of time. We will illustrate this using the seminal work by Chaitin~\cite{chaitin1981} on the subject.
+
+Note that we are assuming a theoretical regular architecture for now. We will address architectural constraints and the associated complications later.
 
 \subsection{Chaitin Style Graph Coloring Register Allocation}
 
@@ -53,18 +55,24 @@ Practical RA needs to rely on heuristics at all steps, to find allocations in a 
 \caption{Simplified overview of the steps in a graph coloring allocator~\cite{hack-thesis}}
 \label{fig:graph-coloring-steps}
 \end{figure}
+First, the interference graph itself must be constructed. This involves scanning the program and adding edges between values that are live simultaneously~\cite{chaitin1981}.
+
+Next, a coalescing heuristic is applied to merge nodes stemming from copy instructions into a single node. Note that this step may increase the number of colors required for the new graph, since the merged nodes may have a higher degree than the original ones~\cite{chaitin1981}.
+
+Finally, the main coloring step begins. First, all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, a remaining node is selected for spilling and the IG is rebuilt for the new program after spill code is inserted. Spilling removes edges from the graph as the spilled value's lifetime is reduced. This process is repeated until the graph is empty~\cite{chaitin1981}.
 
 First the Interference Graph itself has to be constructed. This is done by scanning the program and adding edges between values that are live at the same time. 
 
-Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have a higher degree than the original nodes.
+Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have a higher degree than the original nodes~\cite{chaitin1981}.
 
-Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spill code. Spilling removes edges from the graph, as the lifetime of the spilled value is reduced. This process is repeated until the graph is empty.
+Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spills. This removes edges from the graph, as the lifetime of the spilled value is reduced. This process is repeated until the graph is empty~\cite{chaitin1981}.
 
-Now all nodes are on the coloring stack, where we reinsert them into the graph and assign them a color. This will always be possible since all nodes on the stack must have fewer than $k$ neighbors. This produces a valid coloring of the final program.
+Now that all nodes are on the coloring stack, we can reinsert them into the graph and assign them a color. This is always possible since each node on the stack has fewer than $k$ neighbors. This produces a valid coloring of the final program.
 
-While this approach produces good results in practice, building the Inference Graph is an expensive operation and the iterative nature of the algorithm make it unattractive for use in a JIT compiler~\cite{Cooper06}. 
 
-While there have been multiple improvements to the original algorithm, the basic iterative structure remains the same, prompting different approaches to the problem.
+While this approach yields good results, building the inference graph is computationally expensive, and the iterative nature of the algorithm makes it impractical for use in a JIT compiler~\cite{Cooper06}. 
+
+Although there have been multiple improvements to the original algorithm, the basic iterative structure remains the same, prompting the development of different approaches to the problem.
 
 \subsection{Other Approaches}
 
@@ -72,9 +80,9 @@ One alternate approach is to formulate Register Allocation as an Integer Linear 
 
 The other common approach is to use a linear scan allocator~\cite{linear-scan-og}. This approach avoids the expensive IG data structure in favor of using a total ordering of all program instructions. This ordering is used to determine the single live range of each value, for example starting at instruction $i$ and ending at instruction $j$ ($[i,j]$). The live ranges are then assigned to registers in the order of their interval start. 
 
-Once the algorithm runs out of registers, it spills a value, splitting its live range into two parts. The spilled value is typically chosen based upon the furthest live range end.
+Once the algorithm runs out of registers, it spills a value, splitting its live range into two parts. The spilled value is typically chosen by the longest remaining live range length.
 
-This approach is simple and non-iterative and therefore attractive for use in a JIT compiler. However, due to the simplified liveness information, the resulting allocation quality is comparatively worse. Especially around control flow such as loops and branches with differing register pressure. Although there have been multiple improvements from the original algorithm, the resulting allocation quality is considered worse than that of graph coloring~\cite{wimmer-06-linear-scan}.
+This approach is simple and non-iterative and therefore attractive for use in a JIT compiler. However, due to the simplified liveness information, the resulting allocation quality is comparatively poor. Especially around control flow such as loops and branches with differing register pressure. Although improvements have been made to the original algorithm, the resulting allocation quality is considered worse than that of graph coloring~\cite{wimmer-06-linear-scan}.
 
 \section{Register Allocation on SSA programs}
 
@@ -147,22 +155,24 @@ This approach is simple and non-iterative and therefore attractive for use in a 
 \end{tikzpicture}
 \end{minipage}
 
-\caption{Example snippet of LLVM-IR. Assume that \texttt{\%a\_1} is a redefinition of \texttt{\%a} in the original program. This would add the red edge in the interference graph, creating a cycle of length 4 with other edges connecting the cycle nodes. Therefore, the graph with the red edge is not chordal. The SSA version adds a new node \texttt{\%a\_1} that removes the cycle, therefore the graph with the blue elements remains chordal.}
+\caption{Example snippet of LLVM-IR. Assume that \texttt{\%a\_1} is a redefinition of \texttt{\%a} in the original program. This would add the red edge in the interference graph, creating a cycle of length 4 with no other edges connecting the cycle nodes. Therefore, the graph with the red edge is not chordal. The SSA version adds a new node \texttt{\%a\_1} that removes the cycle, therefore the graph with the blue elements remains chordal.}
 \label{fig:ssa-chordal-graph}
 \end{figure}
 
-Limitations of previously discussed approaches primarily stemmed from the NP-completeness of the underlying allocation problem. For SSA programs, the interference graph can no longer be arbitrary, but is always chordal~\cite{hack-chordal}.
+Limitations of previously discussed approaches primarily stemmed from the NP-completeness of the underlying allocation problem. For SSA programs, the interference graph can no longer be arbitrary and must be chordal~\cite{hack-chordal}.
 
 Chordal graphs are graphs where every cycle of length four or more has a chord, an edge connecting two vertices in the cycle that is not itself part of the cycle (see Fig.~\ref{fig:ssa-chordal-graph}). 
 
-Chordal graphs have a number of useful properties, including the fact that they can be colored in polynomial time.
-Additionally, the required number of colors is equal to the size of the largest subset of vertices that are all adjacent in the graph, which is are determined by the program points with the maximal register pressure~\cite{hack-thesis}.
+Chordal graphs have a number of useful properties, including the property that they can be colored in polynomial time.
+Additionally, the required number of colors is equal to the size of the largest subset of vertices that are all adjacent in the graph. This subset is determined by the program points with maximal register pressure~\cite{hack-thesis}.
 
-SSA register allocators can therefore first use a spilling phase to reduce the register pressure to at most $k$ at each program point, and then color the resulting chordal graph (this is possible even without constructing the graph explicitly~\cite{hack-thesis}).
+SSA register allocators can therefore first use a spilling phase to reduce the register pressure to at most $k$ at each program point, and then color the resulting chordal graph (this is possible without explicitly constructing the graph~\cite{hack-thesis}).
 
-Note that these results still assume a regular architecture. For resolving PHI nodes with cycles and loops, as well as constrained instructions, additional registers may be necessary. By splitting live ranges around constrained instructions some of these problems can be avoided, but doing so introduces additional work in a later coalescing phase~\cite{hack-thesis}. 
+Note that these results still assume a regular architecture.
+Resolving PHI nodes with cycles and loops, as well as constrained instructions, may require additional registers. Splitting live ranges around constrained instructions can avoid some of these problems, but it introduces additional work in a later coalescing phase~\cite{hack-thesis}.
 
-As our work is focused on register allocation speed rather than perfect allocation quality, and we lack some required information to employ these techniques, we do not consider these issues further.
+As our work focuses on register allocation speed rather than perfect allocation quality, and we lack the necessary information to employ these techniques, we will not consider these issues further.
+
 
 \begin{figure}
 \centering
@@ -198,19 +208,22 @@ As our work is focused on register allocation speed rather than perfect allocati
 \section{TPDE}
 \label{sec:tpde}
 
-TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation time. It can be used with most SSA intermediate representations without a translation step, although this work will focus on LLVM-IR in particular. This also entails that TPDE cannot modify the IR in any way.
+TPDE~\cite{tpde} is a compiler backend framework focusing on short compilation times. It can be used with most SSA intermediate representations without a translation step.
 
-In TPDE functions consist of a sequence of basic blocks, which in turn consist of a sequence of instructions. Instructions are represented as a list of operands and a list of results both of which are made of values. 
-Values can have multiple parts, where each part has a bank and size associated. Each part can be stored in their designated stack slot or in a register at any program point. 
+This work, however, will focus on LLVM-IR. This also entails that TPDE cannot modify the IR in any way.
 
-Lifetime is managed at a value level and is calculated using approximated liveness with a start and end basic block as well as a number of references, after which the Value is dead, and its stack slot can be reused. 
+In TPDE, functions consist of a sequence of basic blocks, which in turn consist of a sequence of instructions. 
+Instructions take a number of operands and produce a number of results, both of which are values.
+Values can have multiple parts, where each part has a register bank and size associated. Each part can be stored in its designated stack slot or in a register at any program point. 
 
-TPDE combines instruction selection, register allocation and instruction encoding into a single code generation step. This is done by user provided instruction compilers for each IR instruction that encode the semantics of the instruction and compile them directly into machine instructions.
+Lifetime management occurs at the value level and is calculated using approximated liveness with a start and end basic block as well as its number of uses. After its last use, the value is considered dead, and its stack slot can be reused.
+
+TPDE combines instruction selection, register allocation and instruction encoding into a single code generation step. This is done by user provided instruction compilers for each IR instruction, which encode the instruction's semantics and compile them directly into machine instructions.
 \subsection{Instruction Compilers}
 
 Instruction compilers are responsible for getting handles to the actual Values, which prevent them from being spilled as long as they are alive. 
 They then load the operands into registers or use them as memory operands and encode the instruction. 
-In addition to the normal Values, they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see Lst.~\ref{lst:example-div}).
+In addition to the normal Values, they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see~\autoref{lst:example-div}).
 
 
 
