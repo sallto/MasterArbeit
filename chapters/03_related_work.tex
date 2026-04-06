@@ -3,9 +3,9 @@
 
 \chapter{Related Work}\label{chapter:related_work}
  
-As explained previously in \autoref{sec:tpde}, our work has access to less information than is typical, therefore all approaches discussed in this chapter would require significant adaptations to be applicable in TPDE.
+As explained previously in \autoref{sec:tpde}, our work has access to less information than is typical. Therefore,  all approaches discussed in this chapter would require significant adaptations to be applicable in TPDE.
 
-To the best of our knowledge, there is no existing work, that is intended to be used without knowledge of the instruction selection and the instruction constraints.
+To the best of our knowledge, there is no existing work, intended for use without knowledge of the instruction selection and the instruction constraints.
 % todo impact of ssa form?
 
 
@@ -14,37 +14,39 @@ To the best of our knowledge, there is no existing work, that is intended to be 
 \section{Graph coloring Register Allocation}
 
 
-As previously described, graph coloring of interference graphs is equivalent to register allocation~\parencite{chaitin1981}. 
-In general this is an NP hard problem~\parencite{chaitin1981}. For graphs that are not colorable with $k$ colors, the graph coloring algorithms additionally need to iterate between coloring, spilling and coalescing. Where each spill step requires an expensive rebuild of the interference graph\cite{Cooper06}. This makes traditional graph coloring register allocation too slow for just in time compilation~\parencite{Cooper06}. There are multiple improvements proposed to the original algorithm aiming to improve the code quality, such as optimistic coalescing~\parencite{gc-coalescing}. 
+As previously described, graph coloring of interference graphs is equivalent to register allocation~\autocite{chaitin1981}. 
+In general this is a NP-hard problem~\autocite{chaitin1981}. For graphs that cannot be colored with k colors, graph coloring algorithms must also iterate between coloring, spilling and coalescing. Each spill step requiring an expensive rebuild of the interference graph~\autocite{Cooper06}. This makes traditional graph coloring register allocation too slow for just in time compilation~\autocite{Cooper06}. 
 
-The cost of rebuilding the interference graph after every spilling step can be avoided by approximating the resulting interference graph using additional metadata~\parencite{Cooper06}. This sacrifices a small amount of code quality for a significant speedup, which makes it more suitable for just in time compilation. 
+Compared to GC approaches our work involves only 2 preprocessing passes, including lifetime  analysis, and does not require any iterative algorithms, which allows for a more predictable runtime. 
 
-Compared to GC approaches our work adds only 2 preprocessing passes, including lifetime  analysis, and does not require any iterative algorithm, which allows for a more predictable runtime. 
+The cost of rebuilding the interference graph after every spilling step can be avoided by approximating the resulting interference graph using additional metadata~\autocite{Cooper06}. This sacrifices a small amount of code quality for a significant speedup, which makes it more suitable for just in time compilation. However, the IG remains expensive to build even once and the algorithm remains iterative, and therefore remains less suitable for our use case.
 
 We will consider such SSA-based algorithms such as ours separately as they have different compilation speed properties, even though they are fundamentally based on graph coloring.
 
-\section{Linear Scan Register Allocation}
-Linear Scan Allocators fundamentally of a single scan over the program, finding live ranges and then mapping these live ranges to registers (or memory)~\cite{linear-scan-og}.
-Compared to Graph Coloring, Linear scan require only one scan over the program and no expensive interference graph construction. However, their code quality is generally worse than graph coloring~\cite{hack-thesis}. While some limitations of the original algorithm, such as the lack of lifetime holes for control flow, have been addressed\cite{Wimmer2010}. 
-Linear Scan Allocators fundamentally use a non-optimal approach with increasingly elaborate heuristics or post-processing passes to improve code quality\cite{Wimmer2010}.
+\section{Linear scan register allocation}
+Linear scan allocators perform a single scan of the program to find live ranges, which are then mapped to registers or memory~\cite{linear-scan-og}.
+Compared to graph coloring, linear scan requires only one pass over the program and no costly construction of an interference graph. However, their code quality is generally worse than graph coloring~\cite{hack-thesis}.
+We use a similar approach with one final code generation pass, although we use a precise liveness analysis. Additionally, we have a separate spilling pass, which is crucial for optimizing spill locations around loops.
 
-Similar to improvements by Wimmer and Mössenböck\cite{Wimmer2010}, our approach precomputes a set of spilled variables, allowing for better spill locations compared to spilling once the algorithm runs out of registers. 
+While some limitations of the original algorithm, such as the lack of lifetime holes for control flow, have been addressed~\cite{Wimmer2010}. 
+Linear scan allocators fundamentally use a non-optimal approach involving increasingly elaborate heuristics or post-processing passes to improve code quality~\cite{Wimmer2010}.
 
-Similarly, we emphasize loops placing spills and reloads outside of loops as much as possible. As opposed to the later modifications to Linear Scan, we cannot change allocated code afterwards, which limits the effectiveness of the proposed improvements. In particular, moving spills would not be possible for our work.
+Similar to improvements by Wimmer and Franz~\cite{Wimmer2010}, our approach precomputes a set of spilled variables, allowing for better spill locations compared to spilling once the algorithm runs out of registers. As opposed to the later modifications to linear scan, we cannot change allocated code afterwards, which limits the applicability of the proposed improvements. In particular,  it would not be possible to move spills in our work.
 Due to this limitation, our preprocessing steps are responsible for finding good spill locations. 
+
 Since our code generation step remains as a single pass, our approach could be considered a modified variant of linear scan with additional preprocessing stages.
 
 \section{Trace Register Allocation}
-For JIT Compilers in particular, trace allocation can be used, which assigns registers on chosen segments without control flow, referred to as traces~\cite{trace-ra}. This allows for fast algorithm and can use different allocation strategies based on the trace properties. 
+In particular, for JIT compilers, trace allocation can be used to assign registers on chosen segments, so-called traces, that don't contain control flow~\cite{trace-ra}. This allows for a fast algorithm that can use different allocation strategies based on the trace properties. 
 However, choosing good traces is non-trivial without runtime profiling information, and the resulting code quality is highly dependent on the trace selection~\cite{trace-ra}.
 
-As TPDE~\cite{tpde} does not use have access to runtime profiling information, this approach is not suitable for our use case. Our approach allocates across control flow, without runtime information under the assumption that loops will be executed multiple times.
+As TPDE~\cite{tpde} does not use have access to runtime profiling information, this approach is not suitable for our use case. Our approach allocates across control flow,  without runtime information, based on the assumption that loops will be executed multiple times.
 
-\section{SSA Register Allocation}
+\section{SSA register allocation}
 
-By utilizing the favorable properties of SSA form, these strategies can avoid the runtime costs of traditional graph coloring approaches. Although adapting these results for real architectures with constrained instructions and no swap instructions requires live range splitting and additional modifications to the IR~\cite{hack-thesis}.
-Such modifications would be difficult to integrate into TPDE, which cannot modify the underlying IR, in addition TPDE lacks the information about constraints before codegeneration.
+These strategies utilize the favorable properties of SSA form to avoid the runtime costs of traditional graph coloring approaches. Although adapting these results for real architectures with constrained instructions and no swap instructions requires live range splitting and additional modifications to the IR~\cite{hack-thesis}.
+Such modifications would be difficult to integrate into TPDE, as it cannot modify the underlying IR, in addition TPDE lacks the information about constraints before code generation.
 
-Instead of the previously necessary modifications to the program, Colombet et al.~\cite{treescan} introduce the notion of repairing if an irregularity is encountered. By allowing the register set to deviate at such points, they present a simpler algorithm that falls back to graph coloring in situations where a repairing using parallel moves along is not possible. 
-
+Instead of modifying the program, as was previously required, an alternative approach introduces the notion of repairing if an irregularity is encountered~\cite{treescan}. 
+By allowing deviations in the register set at such points, they propose a simpler algorithm that falls back on graph coloring in situations where a repair using parallel moves is not possible.
 We adopt a similar approach to Colombet et al.~\cite{treescan} by introducing preferred registers and repairing around constraints, however we do not use repairing across all operands of an instruction, thereby limiting our code quality for highly constrained instructions. For calls, our approach is equivalent, although we cannot fall back to a graph coloring approach should the repairing fail.
