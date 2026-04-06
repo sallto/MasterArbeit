@@ -4,11 +4,19 @@
 
 \chapter{Conclusion and Future Work}\label{chapter:conclusion}
 
-In this thesis we presented a novel register allocation approach built on top of TPDE, allowing for better code generation, while not requiring information on the specific instruction semantics, and keeping the core single-pass code generation.
+In this thesis we presented a novel register allocation approach built on top of TPDE, allowing for better code generation, without requiring information on the specific instruction semantics, and maintaining the core single-pass code generation.
+
 We introduced a lifetime and next-use analysis, as well as a spill analysis that approximates register pressure and optimizes spill locations around loops. During code generation, we introduced a repairing mechanism to preserve values across constrained instructions, by inserting moves.
 
-On SPECint 2017 we achieve a. 24\% runtime improvement over the LLVM -O0 back-end, while keeping a three times faster compile time on optimized LLVM IR. Although this also incurs a 5 times compile time increase compared to TPDE. Despite the overall improvements, we see no difference for some benchmarks, due to the limitations of our approach when using optimized LLVM-IR, which was not designed to be used for code generation without further transformations.
 
-Future work may address the limitations of our approach, by implementing additional analyses, specifically around \texttt{getelementptr} instructions with constant offsets, which are a limiting factor for our approach. Storing such values as offsets from a base pointer would enable better code generation especially in the worst performing benchmarks, but would potentially require additional modification to the base TPDE framework, which is intended to be IR agnostic. Additionally, the code quality may be improved by implementing a more elaborate repairing mechanism, that can handle shuffling multiple operands for a constrained instruction. Finally, a better heuristic may avoid spills for loops with low register pressure, as seen in \autoref{fig:asm}.
+On the SPECint 2017 benchmark, we achieved a 24\% runtime improvement over the LLVM \texttt{-O0} backend while maintaining a compile time that was three times faster on optimized LLVM IR. However, this also incurs a sixfold increase in compile time compared to TPDE. Despite the overall improvements, we observe no difference for certain benchmarks due to limitations in our approach when using optimized LLVM IR, which was not designed for use in code generation without further transformations.
 
-The compile time overhead may be reduced by optimizing our implementation, in particular by minimizing the number of allocations caused by set operations. 
+Future work may address these limitations by implementing additional analyses, specifically around \texttt{getelementptr} instructions with constant offsets, which are a limiting factor for our approach. Storing such values as offsets from a base pointer would enable better code generation, especially for the worst-performing benchmarks. However, this would potentially require additional modifications to the base TPDE framework, which is intended to be IR-agnostic. 
+
+Additionally, code quality could be improved by implementing a more elaborate repair mechanism that can handle shuffling multiple operands for a constrained instruction. Finally, a better heuristic could prevent spills for loops with low register pressure, as illustrated in \autoref{fig:asm}.
+
+The compile-time overhead could be reduced by optimizing our implementation, particularly by minimizing the number of allocations caused by set and map operations.
+
+
+
+
