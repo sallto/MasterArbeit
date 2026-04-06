@@ -201,19 +201,19 @@ control flow, see~\autocite{fast-liveness}.
 
 \section{Spilling}
 
-The primary purpose of the spilling pass is to ensure that the register pressure is less than the number of registers $k$. Typically, a spilling pass inserts spills and loads into the IR. For SSA form, this will also require inserting $\phi$ nodes as the reloaded value has to be distinct from the original value, to remain in SSA form.
+The primary purpose of the spilling pass is to ensure that the register pressure is less than the number of registers $k$. Typically, a spilling pass inserts spills and loads into the IR. For the SSA form, $\phi$ nodes must also be inserted, as the reloaded value must be distinct from the original value in order to remain in SSA form.
 
-Instead, we only store the results of the spilling pass, and ensure that blocks are correctly connected, with each value in one unique location during code generation.
+However, since we don't modify the IR anywhere, we can save spills and reloads as metadata and insert them during code generation.
 
 \subsection{Representing Spills and Reloads}
 
-Since we can't modify the existing IR, inserting the calculated spills and reloads is not possible. In particular, we would need to check at every instruction whether a reload or spill needs to be generated.
+Since we can't modify the existing IR, it is not possible to insert the calculated spills and reloads. Specifically, we would need to check with each instruction whether a reload or spill needs to be generated.
 
-While this would be possible, it requires a lot of bookkeeping. Instead, we approximate the spill and reload locations. We avoid storing reloads, except for loop headers and will insert a reload if necessary during code generation.
+This would require a lot of bookkeeping. Instead, we approximate the spill and reload locations. We avoid storing reloads, except for loop headers and will insert a reload if necessary during code generation.
 
-For spills, we only store whether a value should be spilled according to the analysis. Then during code generation we insert the spill immediately after its definition. This simplifies analysis, as we don't need to track which vales where spilled in which branches, to avoid values being lost or unnecessarily spilled again. During code generation we only need to check a single bit in a bitset for the results, reducing the overhead of the spilling pass.
+For spills, we only store the information about which values should be spilled at any point in the program. Then during code generation we insert the spill immediately after the value definition. This simplifies analysis, as we don't need to track which vales where spilled in which branches, to prevent values from being lost or spilled unnecessarily again. During code generation we only need to check a single bit in a bitset for the results, reducing the overhead of the spilling pass.
 
-This approximation of spills does not result in the optimal solution in all cases, especially around blocks with very different execution frequencies (see \autoref{fig:bad_case_spill}). This is particularly relevant for loops, which we assume to execute often.
+This approximation of spills does not result in the optimal solution in all cases, especially around blocks with very different execution frequencies (see \autoref{fig:bad_case_spill}). This is particularly relevant for loops, which we assume to execute frequently.
 
 \begin{figure}
 \centering
@@ -262,7 +262,7 @@ This approximation of spills does not result in the optimal solution in all case
 \label{fig:bad_case_spill}
 \end{figure}
 
-To avoid cases like \autoref{fig:bad_case_spill} for loops, we store the ideal register set for the loop header separately. During code generation the appropriate spills and reloads are generated to match this register set. This ensures that as few spills and reloads as possible are generated within the loop, while still avoiding storing additional state for most basic blocks.
+To avoid situations like the one shown \autoref{fig:bad_case_spill} for loops, we store the ideal register set for the loop header separately. During code generation the appropriate spills and reloads are generated to match this register set. This ensures that as few spills and reloads as possible are generated within the loop, while still avoiding the need to store  additional state for most basic blocks.
 
 \subsection{Calculating spills}
 \label{sec:spill_calculation}
