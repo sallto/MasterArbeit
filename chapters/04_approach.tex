@@ -267,14 +267,14 @@ To avoid situations like the one shown \autoref{fig:bad_case_spill} for loops, w
 \subsection{Calculating spills}
 \label{sec:spill_calculation}
 
-We use a simplified \texttt{MIN} algorithm based on the work of \autocite{hack-spilling}. 
+We use a simplified \texttt{MIN} algorithm based on the work of \citeauthor{hack-spilling}~\cite{hack-spilling}. 
 
-For each block we simulate the working register set $W$ by limiting the size of $W$ to $k$ registers. For values that are live but need to be removed from $W$, we mark them as spilled.
+We simulate the working register set $W$ during each block by limiting its size to $k$ registers. For values that are live but need to be removed from $W$, we mark them as spilled.
 Values with multiple parts, like 128-bit integers, always need to be fully in $W$ or fully spilled.
 
-We spill according to the next-use distance, once before the instruction for operands and once after the instruction to ensure space for the results. 
+We calculate which values to spill according to the next-use distance: once before the instruction to ensure space for the operands, and once after for the results.
 
-At this stage, we do not consider any instruction irregularities, except for calls. Calls are handled by adding a implicit result for every volatile register. In addition, we mark values that are in $W$ after a call and are used in the next $5$ instructions, as these values are good candidates for non-volatile registers.
+At this stage, we do not consider any instruction irregularities, except for calls. Calls are handled by adding an implicit result for each volatile register. Additionally, we mark values that are in $W$ after a call and that will be used in the next five instructions. Such values are good candidates for non-volatile registers.
 All other irregularities are ignored (and are not known to TPDE at this stage).
 
 
@@ -312,11 +312,11 @@ All other irregularities are ignored (and are not known to TPDE at this stage).
 
 \end{algorithm}
 
-We start with $W$ containing the function arguments. Then for every other block we initialize $W$ with the intersection of all incoming values from predecessors. Since we don't insert reloads at this stage, the initialization is not critical, unless the current block is a loop header.
+We initialize $W$ with the function arguments. Then for every each subsequent block, we initialize $W$ with the intersection of all incoming values from predecessors. Since we don't insert reloads at this stage, the initialization is not critical, unless the current block is a loop header.
 
-For loop headers, we initialize $W$ to only contain variables used in the loop and restrict it to $k-p$ registers, where $p$ is the approximate maximum register pressure in the loop. This pressure $p$ is calculated during the liveness analysis and is simply the maximum number of live variables in any of the loop blocks. 
-This ideally ensures that loop iterations can be executed without spilling. 
-Since our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
+For loop headers, we initialize $W$ to contain only the variables used in the loop, restricting it to $k-p$ registers, where $p$ is the approximate maximum register pressure in the loop. This pressure $p$ is calculated during the liveness analysis and is simply the maximum number of live variables in any of the loop blocks. 
+This tries to ensure that loop iterations can be executed without spilling. 
+However, since  our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
 
 \section{Register allocation during code generation}
 
