@@ -4,7 +4,7 @@
 \chapter{Approach}\label{chapter:approach}
 
 \begin{figure}[h]
-\begin{minipage}[l]{0.6\textwidth}
+\begin{minipage}[l]{0.59\textwidth}
     \begin{flushleft}
         
 
@@ -66,32 +66,32 @@
 \end{minipage}
 \end{figure}
 
-This chapter describes how we extend the TPDE framework to support better register allocation choices, while keeping the core code generation as a single pass.
+This chapter describes how we extend the TPDE framework to support better register allocation choices, maintaining a single-pass code generation.
 
 First we perform a lifetime analysis that calculates the distance to the next use of a value at each point.
 Then a spilling pass marks registers to be spilled at points with high register pressure (\regpressure{}), spilling the furthest next-use ($x$ at $B$, and $y$ at $L$). These values are then spilled after their definition. 
-Additionally, we calculate a minimal register set for loop headers, that contains as many loop values as possible, while spilling non-loop values ($y$ at end of $B$).
+Additionally, we calculate a minimal register set for loop headers, that contains as many loop values as possible, while spilling non-loop values ($y$ at the end of $B$).
 
-During code generation we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we try to repair the register state by moving values to different registers to avoid them being lost due to the instruction constraints. 
-At branches, we insert connecting code to ensure the register state matches the target block, and the calculated loop header state, if we branch to a loop header.
+During code generation we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we attempt to repair the register state by moving values to different registers. This prevents the values from being lost due to instruction constraints.
+At branches, we insert connecting code to ensure that the register state matches the target block, and the calculated loop header state, if we branch to a loop header.
 
-\section{Liveness with next-use Distance}
+\section{Liveness with next-use distance}
 
-As described in \autoref{sec:tpde}, the existing liveness analysis in TPDE is on the Basic Block level and does not support lifetime holes.
+As described in \autoref{sec:tpde}, the existing liveness analysis in TPDE operates at the basic block level and does not account for lifetime holes.
 
-This is insufficient for an effective register allocation, as it creates too many interferences between variables, that are not actually present in the original program.
+This is insufficient for an effective register allocation as it creates too many interferences between variables, that are not actually present in the original program.
 
-To resolve this we introduce a precise liveness analysis, that also calculates the next-use distance at each point in the program.
+To address the issue, we introduce a precise liveness analysis, that also calculates the next-use distance at each point in the program.
 
-For this we adapt the approach by \textcite{fast-liveness}.  %todo fix this citation
+To accomplish this, we adapt the approach by \textcite{fast-liveness}.  %todo fix this citation
 
-We define the next-use as the number of instructions between \emph{start of the current block} and the next use of the variable. This means that next-uses are always strictly increasing in a block. The next-use distance can be easily calculated using the index of the current instruction and the next-use. 
+We define the next-use as the number of instructions between \emph{start of the current block} and the next use of the variable. Next-uses are therefore always strictly increasing within a block. The next-use distance can easily be calculated using the index of the current instruction and the next use.
 
 \subsection{Data structures}
 
-We chose to store this information as a sorted (by construction) list of next-uses for each variable and block. Definitions are marked by having their highest bit set, therefore a value is defined in a block if its first next-use entry has the highest bit set (and is not dead). Dead values have a next-use of \texttt{u32::max} or no entry if the value is neither live-in nor defined in the block. A value is therefore live-out if its last entry is not \texttt{u32::max}. 
+We chose to store this information as a sorted (by construction) list of next-uses for each variable and block. Definitions are marked by having their highest bit set. Therefore, a value is defined in a block if its first next-use entry has the highest bit set (and is not dead). Dead values have a next-use of \texttt{u32::max} or no entry if the value is neither live-in nor defined in the block. A value is live-out if its last entry is not \texttt{u32::max}. 
 
-For example, the following array describes a value that is defined in the second instruction of the block, then used in the third (as an operand) and is dead afterwards.
+For example, the following array describes a value that is defined in the second instruction of the block and used as an operand in the third instruction, after which it is dead.
 
 \begin{center}
     \begin{tabular}{|c|c|c|}
@@ -103,41 +103,39 @@ For example, the following array describes a value that is defined in the second
     \end{tabular}
 \end{center}
 
-If a value is live-out, its last entry is the size of the block plus the minimum next-use of the successor blocks, ensuring that the list remains sorted.
+Additionally, we apply a loop exit penalty to live-out distances if the successor is part of the same loop. This penalty is simply a large number added to the distance and accounts for the frequency with which loops are executed, according to our regularity assumptions  (see \autoref{sec:tpde}).  This encourages the later spilling pass to avoid spilling loop variables ~\cite{hack-spilling}.
 
-In addition, we apply a loop exit penalty for the live-out distances if the successor is part of the same loop. This is simply a large number added to the distance, that accounts for loops being executed often, according to our regularity assumptions (see \autoref{sec:tpde}).  This will encourage the later spilling pass to avoid spilling loop variables~\cite{hack-spilling}.
-
-Overall this allows for finding the next-use of a value in logarithmic time in the number of uses in a basic block. As well as checking live-in, live-out and whether it was defined in the block in constant time. In addition, checking a value is used in a loop is also constant time, as we assume all other uses to be below the chosen loop exit penalty.
+Overall, this allows us to find the next use of a value in logarithmic time relative to the number of uses in a basic block. As well as checking live-in, live-out and whether it was defined in the block in constant time. Additionally, checking whether a value is used in a loop takes constant time, as we assume that all other uses are below the chosen loop exit penalty. 
 
 % todo illustration / figure for both subsections of algorithm
-\subsection{Partial Liveness}
+\subsection{Partial liveness}
 
-First we calculate partial liveness for each block by traversing the CFG in post order, skipping loop edges. 
-For each block we process the instructions in forward order, while tracking the current instruction index and noting the definitions and uses of each variable. 
+First we calculate the partial liveness for each block by traversing the control flow graph (CFG) in post-order, skipping loop edges. 
+We then process the instructions for each block in forward order while tracking the current instruction index and noting the definitions and uses of each variable.
 
-To find the live-out distances, we iterate over the direct successors, while skipping loop edges and taking the minimum next-use from the successors. As we are traversing the CFG in post order, the non-loop successor blocks are already processed.
+To find the live-out distances, we iterate over the direct successors, while skipping loop edges and taking the minimum next-use from the successors. As we traverse the CFG in post order, the non-loop successor blocks are already processed.
 
-Note that we consider values that are used only in a $\phi$ definition not live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
+Note that values used only in a $\phi$ definition are not considered live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
 
 
 \subsection{Liveness propagation}
 
-To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness}, which is already implemented in the existing loop analysis of TPDE. %todo fix citation
+To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness},  implemented using the existing TPDE loop analysis.
 
 
-We propagate liveness, by marking live-in values from a loop header as live throughout all child loops (the children of the loop header in the loop forest). This corresponds to adding a single next-use entry for each value in the children of the loop header.
-The next-use entry is larger than the size of block indicating the value is live-in and live-out, but neither used nor defined in the block.
+Liveness is propagated, by marking live-in values from a loop header as live throughout all child loops (the children of the loop header in the loop forest). This corresponds to adding a single next-use entry for each value in the children of the loop header.
+The next-use entry is larger than the block size indicating that the value is both live-in and live-out, but is neither used nor defined within the block.
 
 Whenever a value is propagated to a different loop (including $L_0$), we add the loop exit penalty to the next-use entry.
 
-For large functions, this can lead to many live-through values, which can be problematic as our original data structure results in one allocation per entry created. Instead, we track the live-through values separately in a vector, which is later sorted by the index of the value and its next-use entry. This still allows quick access (in logarithmic time of the number of live-though values in the block), while reducing the number of allocations to one per block.
+For large functions, this can lead to many live-through values, which can be problematic as our original data structure may result in up to one allocation per entry created. Instead, we track the live-through values separately in a vector, which is later sorted by the index of the value and its next-use entry. This approach still allows for quick access (in logarithmic time relative to the number of live-through values in the block) while reducing the number of allocations to one per block.
 
 
 \begin{figure}
     \centering
 
     %---------------- CFG ----------------%
-    \begin{subfigure}[t]{0.49\textwidth}
+    \begin{subfigure}[t]{0.54\textwidth}
         \centering
         \begin{tikzpicture}[
             node distance=6mm and 14mm,
@@ -158,14 +156,14 @@ For large functions, this can lead to many live-through values, which can be pro
             \draw[->] (h2) -- (b2);
             \draw[->] (h2.east) -- ++(1.2,0) |- node[pos=0.25,right] {\small exit} (x.east);
             \draw[->,color=TBblue,thick] (b2) -- ++(-1.2,0) |- node[pos=0.25,right] {\small back} (h2.west);
-            \draw[->,color=TBblue,thick] (b1.west) -- ++(-1.2,0) |- node[pos=0.25,left] {\small back} (h1.west);
+            \draw[->,color=TBblue,thick] (b1.west) -- ++(-0.8,0) |- node[pos=0.25,left] {\small back} (h1.west);
 
         \end{tikzpicture}
         \caption{Control-flow graph}
     \end{subfigure}
     \hfill
     %---------- Loop nesting forest ----------%
-    \begin{subfigure}[t]{0.5\textwidth}
+    \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \begin{tikzpicture}[
             node distance=10mm and 10mm,
@@ -192,7 +190,10 @@ For large functions, this can lead to many live-through values, which can be pro
     \caption{A control-flow graph and its corresponding loop nesting forest~\cite{fast-liveness}. The outermost loop $L_0$ is only the root of the tree, and does not get treated as a loop, this corresponds to the existing loop analysis in TPDE~\cite{tpde}. The edges marked blue are loop edges, as they connect to a loop header, which are skipped on the partial liveness pass.  On edges marked \texttt{exit} the loop exit penalty is added if a value is live after the loop.}
 \end{figure}
 
-Notice that this calculation is not correct for irreducible loops, that have multiple loop headers. As we consider irreducible loops to be rare, we do not handle this case as the insufficient liveness information will not affect the correctness of the final generated program. For further details on how to adapt this liveness analysis for irreducible control flow, see \autocite{fast-liveness}.
+
+Please note, that this calculation is not applicable to irreducible loops with multiple loop headers. As these loops are rare, we do not handle this case, as insufficient liveness information will not affect the correctness of the final generated program.
+For further details on how to adapt this liveness analysis for irreducible
+control flow, see~\autocite{fast-liveness}.
 
 
 % todo illustration / figure for both subsections of algorithm

@@ -221,9 +221,9 @@ Lifetime management occurs at the value level and is calculated using approximat
 TPDE combines instruction selection, register allocation and instruction encoding into a single code generation step. This is done by user provided instruction compilers for each IR instruction, which encode the instruction's semantics and compile them directly into machine instructions.
 \subsection{Instruction Compilers}
 
-Instruction compilers are responsible for getting handles to the actual Values, which prevent them from being spilled as long as they are alive. 
-They then load the operands into registers or use them as memory operands and encode the instruction. 
-In addition to the normal Values, they can also allocate scratch registers, which cannot be spilled and are used in situations where a specific instruction requires an additional registers or clobbers other registers than the operands and results (see~\autoref{lst:example-div}).
+Instruction compilers are responsible for getting handles to the actual values, which prevent them from being spilled during the compilation function. 
+Then, they load the operands into registers or use them as memory operands and encode the instruction. 
+ Instruction compilers can also allocate scratch registers, which cannot be spilled and are used in situations where an instruction requires additional registers or clobbers registers other than their operands and results (see~\autoref{lst:example-div}).
 
 
 
@@ -242,31 +242,30 @@ void emit_udiv64(IRInstr inst) {
 } // Release handles and scratch
 \end{lstlisting}
 
-Instruction compilers can allocate more or less registers than is suggested by the number of their operands and results. As TPDE is unaware of the true semantics of the instruction, this makes register allocation, which has to operate before code generation, more difficult.
+Instruction compilers may allocate more or fewer registers than is suggested by the number of their operands and results. Since TPDE is unaware of the true semantics of the instruction, register allocation becomes more difficult, as it must occur before code generation.
 
 \subsection{Register Allocation in TPDE}
 
-Whenever a register is requested by an instruction compiler, the framework will try to use the existing register if the requested part currently is in one, otherwise it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining lifetime of the spilled value. For requests of a specific register, the value contained in that register will be spilled.
+Whenever an instruction compiler requests a register, the framework will check whether the part is in a register already. Otherwise, it will look for a free register from the correct bank. If no register is available, it will spill a register according to heuristic taking into account the cost of reloads as well as the remaining lifetime of the spilled value. For requests of a specific register, the value contained in that register will be spilled.
 
-In addition to this basic mechanism, values that are used across basic blocks in the innermost loop can be assigned a fixed register. Such a fixed part will be in the same register for its entire lifetime and will never be spilled. 
-This is targeted at loops to avoid spilling loop induction values or other values used in the innermost loop.
+In addition to this basic mechanism, values that are used across basic blocks in the innermost loop can be assigned a fixed register. These values will remain in the same register for their entire lifetime and will never be spilled. This is intended for loops to prevent spilling of loop induction values or other values used in the innermost loop.
 
-Otherwise, all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor and has only one predecessor. This avoids having to store the register state across basic blocks.
+Otherwise, all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor with only one predecessor. This avoids having to store the register state across basic blocks.
 
 \subsection{TPDE specific challenges for Register Allocation}
 
-As previously established, instruction compilers may require more or fewer register than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the code generation step is final and intelligent register choices have to be calculated beforehand. 
+As previously established, instruction compilers may require more or fewer registers than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the code generation step is final and intelligent register choices have to be calculated beforehand. 
 
-Fortunately in practice most instructions behave regularly. 
+Fortunately, most instructions behave regularly in practice.
 To this end, we will make the following regularity assumptions, which we assume to hold for most instructions and programs:
 
 
 \begin{itemize}
-    \item Most Values have one part.
-    \item Most instructions need exactly as many registers as their operands and results suggest.
+    \item Most values have one part.
+    \item Most instructions require exactly as many registers as their operands and results suggest.
     \item Most instructions do not need specific registers or clobber non-result registers.
     \item Most loops are executed often so that spills and reloads outside a loop are always preferred.
     \item Most loops are reducible.
 \end{itemize}
 
-Our work will utilize these assumptions while making sure the approach remains correct, but potentially suboptimal in the presence of irregularity.
+Our work will utilize these assumptions while ensuring the approach remains correct, but potentially suboptimal in the presence of irregularity.
