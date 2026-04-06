@@ -320,28 +320,29 @@ However, since  our register pressure $p$ is only an approximation, we conservat
 
 \section{Register allocation during code generation}
 
-After the previous passes, we are now at the code generation stage of TPDE. Therefore, any generated instruction cannot be undone, as they are immediately encoded. 
-This stage focuses on avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including $\phi$ nodes.
+Having completed the previous stages, we have now reached the code generation stage of TPDE. Therefore, any generated instruction cannot be undone, as they are encoded immediately. 
+The focus of this stage is avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including $\phi$ nodes.
 
 \subsection{Register choice in a Basic Block}
 \subsubsection{Register choice for unconstrained instructions}
-When a value requests a register, we choose in round-robin fashion from the currently unused registers. We prefer volatile registers, unless the value has been previously marked as a non-volatile candidate (see section~\ref{sec:spill_calculation}).
+When a value requests a register, we select one from the currently unused registers in round-robin fashion. Volatile registers are preferred unless the value has previously been marked as non-volatile (see section~\ref{sec:spill_calculation}).
 The chosen register is then noted as the preferred register for this value. Future reloads of this value will try to use the same register if possible, in order to minimize connecting instructions~\cite{treescan}.
 
-Should there be no free register, we need to spill a value. For this we choose the values with the largest next-use distance, which are typically already marked as spilled and therefore do not generate a new spill.
-
+If there are no free registers, a value must be spilled. To do this, we select values with the largest next-use distance. These values are usually already marked as spilled and therefore do not generate a new spill.
 \subsubsection{Register choice for constrained instructions}
 
-For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a Scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby repairing the assignment instead of spilling. If no register is available, we spill the occupying value, since the previously used spill information is not correct around constrained instructions. 
+For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby repairing the assignment instead of spilling. If no register is available, the occupying value is spilled,  since the previously calculated spill information is not correct around constrained instructions. 
 
 As requests are processed value by value it is possible, that we miss shuffling opportunities between operands.
-For example assume we have values $x$ and $y$ in registers $rax$ and $rdx$ respectively and all other registers are occupied.
-Now if we want to compile a 64-bit division, the compilation function will request $rdx$ and zero it, which requires spilling $y$. Then $y$ need to be in register $rax$ which will spill $x$. And finally $x$ needs an arbitrary register. 
-This is not optimal as we could have used the final register of $x$ as a temporary to swap x and y, only requiring  one spill, which can also be an arbitrary register and therefore more likely to be marked spilled. 
 
-Although this scenario is possible, it is unlikely to occur as long as most instruction are unconstrained, values would also need to be in specific registers by chance and have a high register pressure at this point. 
+For example assume we want to compile an unsigned 64-bit division on \texttt{x86-64}, which requires the dividend to be in \texttt{rax} and \texttt{rdx} to be zero. If we have the dividend $x$ in \texttt{rdx} and the divisor $y$ in \texttt{rax}, and all other registers are occupied. We will first spill $y$ to free up \texttt{rdx}, then spill $x$ to free up \texttt{rax}, and finally we need to spill an arbitrary register for $x$.
 
-However, for calls such situations may be problematic, as all arguments have a specific location, and they occur frequently in programs. Therefore, we handle calls separately.
+This could be avoided by first getting the arbitrary register for $x$, then moving $y$ from \texttt{rax} to the new register, and finally moving $x$ into \texttt{rax}. 
+
+Although this scenario is possible, it is unlikely to occur as long as most instructions are unconstrained.
+Values would also need to be in specific registers by chance, and there would need to be high register pressure at this point. 
+
+However, such situations may be problematic for calls, as all arguments have a specific location, and they occur frequently in programs. Therefore, we handle calls separately.
 
 
 %/\begin{align*}
@@ -356,9 +357,12 @@ However, for calls such situations may be problematic, as all arguments have a s
 %\end{align*}
 
 \subsubsection{Register allocation for calls}
+For calls, all operands must be located either in a specific stack or in a specific register.
 
-For calls specifically all its operands need to be in a specific location either on the stack or in a specific register. To handle this better, we collect all operands and their target locations, then spill all volatile registers. 
-Then in a second pass we first move all stack operands to their location, which frees up more registers. Then finally we use a parallel move algorithm~\cite{par-move}, which uses the free registers as temporaries in order to swap values between registers and resolve any dependency cycles between them.
+We first collect all operands and their target locations and spill all volatile registers. 
+
+In a second pass we first move all stack operands to their location, which frees up more registers. 
+Finally, we use a parallel move algorithm~\cite{par-move}, which uses the free registers as temporaries in order to swap values between registers and resolve any dependency cycles.
 
 \subsection{Connecting Basic Blocks}
 
