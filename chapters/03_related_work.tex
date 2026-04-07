@@ -11,7 +11,7 @@ To the best of our knowledge, there is no existing work, intended for use withou
 
 
 % linear scan dann in Related work und puzzle solving zeugs
-\section{Graph coloring Register Allocation}
+\section{Graph Coloring Register Allocation}
 
 
 As previously described, graph coloring of interference graphs is equivalent to register allocation~\autocite{chaitin1981}. 
@@ -23,7 +23,7 @@ The cost of rebuilding the interference graph after every spilling step can be a
 
 We will consider such SSA-based algorithms such as ours separately as they have different compilation speed properties, even though they are fundamentally based on graph coloring.
 
-\section{Linear scan register allocation}
+\section{Linear Scan Register Allocation}
 Linear scan allocators perform a single scan of the program to find live ranges, which are then mapped to registers or memory~\cite{linear-scan-og}.
 Compared to graph coloring, linear scan requires only one pass over the program and no costly construction of an interference graph. However, their code quality is generally worse than graph coloring~\cite{hack-thesis}.
 We use a similar approach with one final code generation pass, although we use a precise liveness analysis. Additionally, we have a separate spilling pass, which is crucial for optimizing spill locations around loops.
@@ -42,7 +42,7 @@ However, choosing good traces is non-trivial without runtime profiling informati
 
 As TPDE~\cite{tpde} does not use have access to runtime profiling information, this approach is not suitable for our use case. Our approach allocates across control flow,  without runtime information, based on the assumption that loops will be executed multiple times.
 
-\section{SSA register allocation}
+\section{SSA Register Allocation}
 
 These strategies utilize the favorable properties of SSA form to avoid the runtime costs of traditional graph coloring approaches. Although adapting these results for real architectures with constrained instructions and no swap instructions requires live range splitting and additional modifications to the IR~\cite{hack-thesis}.
 Such modifications would be difficult to integrate into TPDE, as it cannot modify the underlying IR, in addition TPDE lacks the information about constraints before code generation.

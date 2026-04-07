@@ -3,7 +3,7 @@
 \label{ch:background}
 In this chapter, we will introduce the basic concepts of register allocation and the particular importance of the SSA form. We then briefly describe the TPDE backend framework and the resulting challenges building register allocation on top of it.
 
-\section{Register Allocation on non-SSA programs}
+\section{Register Allocation on non-SSA Programs}
 \label{sec:regalloc-non-ssa}
 
 Register allocation is the process of assigning values from a program to a limited number of $k$ physical registers. This process is commonly modeled as finding the graph coloring of an interference graph (IG)corresponding to the program.
@@ -55,15 +55,9 @@ Note that we are assuming a theoretical regular architecture for now. We will ad
 \caption{Simplified overview of the steps in a graph coloring allocator~\cite{hack-thesis}}
 \label{fig:graph-coloring-steps}
 \end{figure}
-First, the interference graph itself must be constructed. This involves scanning the program and adding edges between values that are live simultaneously~\cite{chaitin1981}.
+First the Interference Graph itself has to be constructed. This is done by scanning the program and adding edges between values that are live at the same time~\cite{chaitin1981}. 
 
-Next, a coalescing heuristic is applied to merge nodes stemming from copy instructions into a single node. Note that this step may increase the number of colors required for the new graph, since the merged nodes may have a higher degree than the original ones~\cite{chaitin1981}.
-
-Finally, the main coloring step begins. First, all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, a remaining node is selected for spilling and the IG is rebuilt for the new program after spill code is inserted. Spilling removes edges from the graph as the spilled value's lifetime is reduced. This process is repeated until the graph is empty~\cite{chaitin1981}.
-
-First the Interference Graph itself has to be constructed. This is done by scanning the program and adding edges between values that are live at the same time. 
-
-Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph since, the merged nodes may have a higher degree than the original nodes~\cite{chaitin1981}.
+Next, a coalescing heuristic is applied such that the nodes stemming from copy instructions are merged into a single node. Notice that this step might increase the number of colors required for the new graph, since the merged nodes may have a higher degree than the original nodes~\cite{chaitin1981}.
 
 Finally, the main coloring step begins. First all nodes with fewer than $k$ neighbors are removed from the graph and placed into a stack. If the graph is now empty, we move on to the next step. Otherwise, we select a remaining node for spilling and rebuild the IG for the new program after inserting spills. This removes edges from the graph, as the lifetime of the spilled value is reduced. This process is repeated until the graph is empty~\cite{chaitin1981}.
 
@@ -84,7 +78,7 @@ Once the algorithm runs out of registers, it spills a value, splitting its live 
 
 This approach is simple and non-iterative and therefore attractive for use in a JIT compiler. However, due to the simplified liveness information, the resulting allocation quality is comparatively poor. Especially around control flow such as loops and branches with differing register pressure. Although improvements have been made to the original algorithm, the resulting allocation quality is considered worse than that of graph coloring~\cite{wimmer-06-linear-scan}.
 
-\section{Register Allocation on SSA programs}
+\section{Register Allocation on SSA Programs}
 
 
 \definecolor{ssaBlue}{RGB}{40,100,220}
@@ -252,7 +246,7 @@ In addition to this basic mechanism, values that are used across basic blocks in
 
 Otherwise, all non-fixed registers are spilled at each basic block boundary, unless the next block is the immediate successor with only one predecessor. This avoids having to store the register state across basic blocks.
 
-\subsection{TPDE specific challenges for Register Allocation}
+\subsection{TPDE specific Challenges for Register Allocation}
 
 As previously established, instruction compilers may require more or fewer registers than is suggested by their operands and results. This makes register allocation perfect register allocation impossible, as the code generation step is final and intelligent register choices have to be calculated beforehand. 
 

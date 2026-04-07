@@ -99,20 +99,20 @@ As both architectures show similar results, we will refer to the \texttt{x86-64}
 
     \end{axis}
   \end{tikzpicture}
-    \caption{SPEC CPU2017 integer runtime speedup relative to clang-O1 backend with optimized IR.}
+    \caption{SPEC CPU2017 integer runtime speedup relative to LLVM-O1 backend with optimized IR.}
     \label{fig:spec_runtime_speedup}
 \end{figure}
 
 First, we compare our solution with the LLVM back-ends, as well the original TPDE on optimized IR. 
 The produced IR uses $\phi$ nodes and is in SSA form with relatively long live ranges, making it a good candidate for comparison.
 
-\autoref{fig:spec_runtime_speedup} shows an overall improvement in the runtime performance of $24\%$ ($0.573\times$ vs. $0.710\times$) for our work compared to llvm-O0 backend, and a improvement of $15\%$ ($0.618\times$ vs. $0.710\times$) for our work compared to the original TPDE. Compared to llvm-O1 backend, which has a better instruction selection, register allocation and performs additional optimization passes on the IR, our work is $30\%$ slower. 
+\autoref{fig:spec_runtime_speedup} shows an overall improvement in the runtime performance of $24\%$ ($0.573\times$ vs. $0.710\times$) for our work compared to the LLVM-O0 backend, and an improvement of $15\%$ ($0.618\times$ vs. $0.710\times$) compared to the original TPDE. Compared to the LLVM-O1 backend, which has a better instruction selection, register allocation and performs additional optimization passes on the IR, our work is $30\%$ slower. 
 
 However, the performance improvement is not uniform 
  across benchmarks, with some showing no improvement when compared to TPDE.
 We will use \texttt{600.perl} as a representative example to illustrate issues that arise when using optimized IR as the basis for register allocation.
 
-\subsubsection{Suboptimal structures resulting from LLVM-O1 pipeline}
+\subsubsection{Suboptimal Structures Resulting from the LLVM-O1 Pipeline}
 
 The clang and LLVM-O1 frontend pipelines perform multiple transformations, but the resulting IR is not designed for direct use without further transformations. For example the loop invariant code motion pass (LICM) moves instructions outside of loops wherever possible. This results in many pointer offsets (\texttt{getelementptr}) to be moved to the beginning of functions. Additionally, there is no deduplication pass for values after LICM, which resulting in numerous duplicate values  for the same pointer offset. For the function \texttt{S\_regmatch} from \texttt{600.perl}, which is its bottleneck, we find at least $7000$ usages of such values.
 
@@ -160,12 +160,12 @@ Such patterns are found on the hot functions of $600.perl$, $620.omnetpp$ and $6
 
 \subsubsection{Other Limitations}
 
-In addition to the aforementioned issues, there are some other limitations of our implementation that may  contribute to the performance gap to llvm-O1. Since we lack a coalescing analysis, we generally need separate registers for the phi and its next-incoming, resulting in higher register pressure. This leads to poorer instruction selection on \texttt{x86-64}, as we cannot use the add and sub instructions, as these overwrite their source operands. We also don't perform any instruction scheduling, which would reduce register pressure (see \texttt{rax} and \texttt{r9} in the left snippet of \autoref{fig:asm}). Additionally, our implementation currently splits all conditional branches, leading to more jumps and a worse code layout. 
+In addition to the aforementioned issues, there are some other limitations of our implementation that may  contribute to the performance gap to LLVM-O1. Since we lack a coalescing analysis, we generally need separate registers for the phi and its next incoming value, resulting in higher register pressure. This leads to poorer instruction selection on \texttt{x86-64}, as we cannot use the add and sub instructions, as these overwrite their source operands. We also don't perform any instruction scheduling, which would reduce register pressure (see \texttt{rax} and \texttt{r9} in the left snippet of \autoref{fig:asm}). Additionally, our implementation currently splits all conditional branches, leading to more jumps and a worse code layout. 
 
-Since we spill all non-loop variables when entering a loop header, unnecessary spills can result if the loop has low register pressure (see \autoref{fig:asm}). Since we don't know the actual register pressure at the spill stage it is difficult to design a better heuristic for this issue, as an additional spill/reload in the loop would be more expensive than the unncessary spills outside the loop. 
+Since we spill all non-loop variables when entering a loop header, unnecessary spills can result if the loop has low register pressure (see \autoref{fig:asm}). Since we don't know the actual register pressure at the spill stage it is difficult to design a better heuristic for this issue, as an additional spill/reload in the loop would be more expensive than the unnecessary spills outside the loop. 
 
 % todo diagramme zitieren
-\section{Compile time}
+\section{Compile Time}
 
 
 \begin{figure}[t]
@@ -175,7 +175,7 @@ Since we spill all non-loop variables when entering a loop header, unnecessary s
       ymode=log,
       ybar=0pt,
       ymin=1,
-      ymax=600,
+      ymax=650,
       ymajorgrids=true,
       yminorgrids=true,
       bar width=4.5pt,
@@ -217,7 +217,7 @@ Since we spill all non-loop variables when entering a loop header, unnecessary s
       legend image code/.code={
         \draw [#1] (0cm,-0.1cm) rectangle (0.2cm,0.25cm); },
      width=1\textwidth,
-      height=7.5cm,
+      height=7.1cm,
       ]
 %\addplot table[x=benchmark,y expr=\thisrow{o1-x86_64-clang},col sep=comma] {plots/output/spec_runtime_speedup.csv};
       \addplot table[x=benchmark,y expr=\thisrow{o1ir-x86_64-clang},col sep=comma] {plots/output/spec_compile_speedup.csv};
@@ -246,17 +246,17 @@ Since we spill all non-loop variables when entering a loop header, unnecessary s
 
     \end{axis}
   \end{tikzpicture}
-    \caption{SPEC CPU2017 integer compile time speedup relative to clang-O1 backend with optimized IR. (log scale)}
+    \caption{SPEC CPU2017 integer compile time speedup relative to LLVM-O1 backend with optimized IR. (log scale)}
     \label{fig:spec_compile_speedup}
 \end{figure}
 % todo alle farben checken
 
-We  observe an overall increase in compile time of around $5.4$ times ($102.0\times$ vs $19.00\times$) compared to TPDE, while still remaining $3.7$ times faster than llvm-O0 ($19.00\times$ vs $5.150\times$). 
+We  observe an overall increase in compile time of around $5.4$ times ($102.0\times$ vs. $19.00\times$) compared to TPDE, while still remaining $3.7$ times faster than LLVM-O0 ($19.00\times$ vs. $5.150\times$). 
 
-For the code generation step we see a two times increase compared to TPDE, with the rest of the compile time attributed to the two additional passes with the liveness pass taking around twice the time of the spill pass. In particular all three sections rely on sets and maps, which using the current implementation result in many allocations. These take around $20\%$ of the compile time for \texttt{600.perl} on \texttt{x86-64} when measured using the sampling-based profiler \texttt{perf} on the combined IR from \texttt{llvm-link}. This suggests an implementation issue.
+For the code generation step we see a two times increase compared to TPDE, with the rest of the additional compile time attributed to the two new passes with the liveness pass  taking nearly twice the time (34\% of execution time) of the spill pass (19\% of execution time). In particular all three sections rely on sets and maps, which using the current implementation result in many allocations. These take around $20\%$ of the compile time for \texttt{600.perl} on \texttt{x86-64} when measured using the sampling-based profiler \texttt{perf} on the combined IR from \texttt{llvm-link}. This suggests an implementation issue.
 
 
-\section{Code size}
+\section{Code Size}
 
 \begin{figure}[t]
     \centering
@@ -335,7 +335,7 @@ For the code generation step we see a two times increase compared to TPDE, with 
 
     \end{axis}
   \end{tikzpicture}
-    \caption{SPEC CPU2017 integer text size relative to clang-O1 backend with optimized IR.}
+    \caption{SPEC CPU2017 integer text size relative to LLVM-O1 backend with optimized IR.}
     \label{fig:spec_text_size}
 \end{figure}
 
@@ -352,7 +352,7 @@ Matching the code size of LLVM-O1 is not possible due to the superior instructio
 Our results show, that we were able to achieve a moderate improvement in runtime performance compared to the original TPDE, while still remaining significantly faster than LLVM-O0. However, there is still a significant gap to LLVM-O1, which is difficult to close without more elaborate analyses. Especially in the worst performing benchmarks, where we see no improvement while incurring a large compile-time penalty.
 Some compile-time gap to TPDE may be closed by optimizing the implementation, specifically around minimizing the number of allocations.
 
-Nevertheless, our implementation is a new pareto-optimum for compiling optimized IR, as it is significantly faster than LLVM-O1 while still providing a runtime improvement compared to both TPDE and LLVM-O0. Additionally, our implementation is independent of the IR, so it may be used as a back-end for other IRs, where problems such as the LICM may be avoided.
+Nevertheless, our implementation is a new pareto-optimum for compiling optimized IR, as it is significantly faster than LLVM-O1 while still providing a runtime improvement compared to both TPDE and LLVM-O0. Additionally, our implementation is independent of the IR, so it may be used as a back-end for other IR, where problems such as the LICM may be avoided.
 
 
 \section{Unoptimized IR}
@@ -448,8 +448,8 @@ jmp   12a
 \draw[jump] (L1.south) -- (L2.north);
 \draw[jump] (L2.south) -| ++(2mm,-5mm) -| node[lab,pos=0.25,above] {not equal} (L4.north);
 \draw[jump] (L2.south) -| ++(-2mm,-5mm) -| node[lab,pos=0.25,above] {equal}   (L3.north);
-\draw[jump] (L3.south) -- node[lab,left]  {jmp 154} (L5.north west);
-\draw[jump] (L4.south) -- node[lab,right] {fall}    (L5.north east);
+\draw[jump] (L3.south) --  (L5.north west);
+\draw[jump] (L4.south) --    (L5.north east);
 \draw[jump] (L5.south west) -| ++(-20mm,0mm)  |-  (L2.north west);
 
 % -------------------------------------------------
@@ -483,9 +483,9 @@ jmp   .LBB0\_9
 };
 % Right arrows
 \draw[jump] (R1.south west) -| node[lab,above right, xshift=1cm] {not equal}  ++(-25mm,0mm) |- ++(0,3cm) |- (R2.north west);
-\draw[jump, dashed] (R2.south)  -- (R1.north);
+\draw[jump] (R2.south)  -- node[lab,left,xshift=-0.1cm] {equal} (R1.north);
 %\draw[jump] (R2.south west) -| node[lab,above left, xshift=-1cm] {equal} |- (R3.north west);
-\draw[jump,] ([xshift=-0.1cm]R2.south east)  -- node[lab,left] {equal} ([xshift=2.9cm]R3.north);
+\draw[jump,] ([xshift=-0.1cm]R2.south east)  -- node[lab,left] {not equal} ([xshift=2.9cm]R3.north);
 %\draw[jump] (R1.south) -- (R3.north);
 \draw[jump] (R3.south east)  -| ++(2mm,0mm) |- (R1.north east);
 

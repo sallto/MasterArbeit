@@ -24,7 +24,7 @@
 % Nodes
 \node[box] (S) { $x \gets \cdots$\\[2pt] \textcolor{blue}{spill($x$)}\\[2pt] $y \gets \cdots$\\[2pt] \textcolor{blue}{spill($y$)}};
 
-\node[box, below left=0.6cm and 0.1cm of S] (L) {$\gets x$\\[4pt] \regpressure{1}\\[4pt] \textcolor{TBgreen}{reload(x)} \\[2pt] $\gets x$};
+\node[box, below left=0.6cm and 0.1cm of S] (L) {$\gets x$\\[4pt] \regpressure{}\\[4pt] \textcolor{TBgreen}{reload(x)} \\[2pt] $\gets x$};
 
 \node[box, below right=0.6cm and 0.1cm of S] (B) {\regpressure{}\\[2pt] $\gets y$ \\[2pt] \textcolor{TBpurple}{evict($y$)} \\[2pt] \textcolor{TBpurple}{reload($x$)}};
 
@@ -75,7 +75,7 @@ Additionally, we calculate a minimal register set for loop headers, that contain
 During code generation we insert reloads as necessary to encode instructions. When encountering constrained instructions such as \texttt{add} on \texttt{x86-64}, we attempt to repair the register state by moving values to different registers. This prevents the values from being lost due to instruction constraints.
 At branches, we insert connecting code to ensure that the register state matches the target block, and the calculated loop header state, if we branch to a loop header.
 
-\section{Liveness with next-use distance}
+\section{Liveness with Next-Use Distance}
 
 As described in \autoref{sec:tpde}, the existing liveness analysis in TPDE operates at the basic block level and does not account for lifetime holes.
 
@@ -87,7 +87,7 @@ To accomplish this, we adapt the approach by \textcite{fast-liveness}.  %todo fi
 
 We define the next-use as the number of instructions between \emph{start of the current block} and the next use of the variable. Next-uses are therefore always strictly increasing within a block. The next-use distance can easily be calculated using the index of the current instruction and the next use.
 
-\subsection{Data structures}
+\subsection{Data Structures}
 
 We chose to store this information as a sorted (by construction) list of next-uses for each variable and block. Definitions are marked by having their highest bit set. Therefore, a value is defined in a block if its first next-use entry has the highest bit set (and is not dead). Dead values have a next-use of \texttt{u32::max} or no entry if the value is neither live-in nor defined in the block. A value is live-out if its last entry is not \texttt{u32::max}. 
 
@@ -108,7 +108,7 @@ Additionally, we apply a loop exit penalty to live-out distances if the successo
 Overall, this allows us to find the next use of a value in logarithmic time relative to the number of uses in a basic block. As well as checking live-in, live-out and whether it was defined in the block in constant time. Additionally, checking whether a value is used in a loop takes constant time, as we assume that all other uses are below the chosen loop exit penalty. 
 
 % todo illustration / figure for both subsections of algorithm
-\subsection{Partial liveness}
+\subsection{Partial Liveness}
 
 First we calculate the partial liveness for each block by traversing the control flow graph (CFG) in post-order, skipping loop edges. 
 We then process the instructions for each block in forward order while tracking the current instruction index and noting the definitions and uses of each variable.
@@ -118,7 +118,7 @@ To find the live-out distances, we iterate over the direct successors, while ski
 Note that values used only in a $\phi$ definition are not considered live-in, but we will consider them live-out at their predecessor blocks with a use at the zeroth instruction of the successor.
 
 
-\subsection{Liveness propagation}
+\subsection{Liveness Propagation}
 
 To propagate the liveness information through the program, we calculate a loop forest as described by \autocite{fast-liveness},  implemented using the existing TPDE loop analysis.
 
@@ -264,7 +264,7 @@ This approximation of spills does not result in the optimal solution in all case
 
 To avoid situations like the one shown \autoref{fig:bad_case_spill} for loops, we store the ideal register set for the loop header separately. During code generation the appropriate spills and reloads are generated to match this register set. This ensures that as few spills and reloads as possible are generated within the loop, while still avoiding the need to store  additional state for most basic blocks.
 
-\subsection{Calculating spills}
+\subsection{Calculating Spills}
 \label{sec:spill_calculation}
 
 We use a simplified \texttt{MIN} algorithm based on the work of \citeauthor{hack-spilling}~\cite{hack-spilling}. 
@@ -318,18 +318,18 @@ For loop headers, we initialize $W$ to contain only the variables used in the lo
 This tries to ensure that loop iterations can be executed without spilling. 
 However, since  our register pressure $p$ is only an approximation, we conservatively evict all values that are not used in the loop.
 
-\section{Register allocation during code generation}
+\section{Register Allocation during Code Generation}
 
 Having completed the previous stages, we have now reached the code generation stage of TPDE. Therefore, any generated instruction cannot be undone, as they are encoded immediately. 
 The focus of this stage is avoiding additional spills, other than those previously calculated, and handles connecting basic blocks together including $\phi$ nodes.
 
-\subsection{Register choice in a Basic Block}
-\subsubsection{Register choice for unconstrained instructions}
+\subsection{Register Choice in a Basic Block}
+\subsubsection{Register Choice for Unconstrained Instructions}
 When a value requests a register, we select one from the currently unused registers in round-robin fashion. Volatile registers are preferred unless the value has previously been marked as non-volatile (see section~\ref{sec:spill_calculation}).
 The chosen register is then noted as the preferred register for this value. Future reloads of this value will try to use the same register if possible, in order to minimize connecting instructions~\cite{treescan}.
 
 If there are no free registers, a value must be spilled. To do this, we select values with the largest next-use distance. These values are usually already marked as spilled and therefore do not generate a new spill.
-\subsubsection{Register choice for constrained instructions}
+\subsubsection{Register Choice for Constrained Instructions}
 
 For constrained instruction, the associated compilation function (see~\autoref{lst:example-div}) will either use a scratch register or request a specific register. Scratch registers are handled like normal values except that they cannot be spilled and no preferred register is stored as they are temporary. If a specific register is requested, and the register is currently in use, we move the occupying value into a free register if possible, thereby repairing the assignment instead of spilling. If no register is available, the occupying value is spilled,  since the previously calculated spill information is not correct around constrained instructions. 
 
@@ -372,6 +372,6 @@ If a successor contains $\phi$ nodes, we try to allocate them to a register and 
 
 As it is not possible to undo any action taken during the connection step, all jumps currently need to be split. However, it would be possible to pre-calculate whether any moves, spills or reloads are necessary, and then decide whether a jump must be split.
 
-\subsubsection{Loop headers}
+\subsubsection{Loop Headers}
 
 As previously described, we consider loop headers to be especially important and have therefore precalculated the register state during the spilling phase. This is used when connecting to a loop header. All non-loop values are spilled, and the missing values are reloaded into registers, to ensure registers match the precalculated state.

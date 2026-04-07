@@ -4,6 +4,6 @@ Fast compilation is crucial in contexts where code generation occurs at runtime,
 Recently, TPDE has shown that compilation speed of LLVM unoptimized back-end can be improved substantially while keeping a similar runtime. 
 However, because TPDE further reduces compilation time at the unoptimized level, it also widens the compile-time gap to the next optimization level, \texttt{-O1}, to two orders of magnitude.
 
-In this work, we present a novel register allocation approach built on top of TPDE that enables improved code generation while preserving its core single-pass code-generation model. By combining two analysis passes with a repair mechanism applied during code generation, our approach optimizes spill placement and resolves instruction constraints.
+In this work, we present a novel register allocation approach built on top of TPDE that enables improved code generation while preserving a fast compilation time. By combining two analysis passes with a repair mechanism applied during code generation, our approach optimizes spill placement and resolves instruction constraints.
 
 On SPECint 2017 we achieve a 24\% runtime improvement over the LLVM -O0 back-end, while maintaining a 4x faster compile time on optimized LLVM IR. Although, this also results in a 5x compile time slowdown compared to the original TPDE. Our results demonstrate the potential for a faster, lightly optimizing compiler back end; however, several design and implementation issues limit the performance of our approach.
